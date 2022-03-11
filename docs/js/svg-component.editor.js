@@ -28,7 +28,7 @@ var Main = function() {
 	this.HEIGHT = 400;
 	this.WIDTH = 600;
 	this.NS = "http://www.w3.org/2000/svg";
-	console.log("src/Main.hx:20:","Hello 'Example Javascript'");
+	console.log("src/Main.hx:21:","Hello 'Example Javascript'");
 	this.init();
 };
 Main.main = function() {
@@ -153,11 +153,11 @@ var Selector = function(stage) {
 		var target = event.target;
 		if(target.isSameNode(stage) == false) {
 			if(target.tagName == "circle") {
-				offset_x = parseFloat(target.getAttribute("cx")) - event.clientX;
-				offset_y = parseFloat(target.getAttribute("cy")) - event.clientY;
+				offset_x = Math.round(parseFloat(target.getAttribute("cx")) - event.clientX);
+				offset_y = Math.round(parseFloat(target.getAttribute("cy")) - event.clientY);
 			} else {
-				offset_x = parseFloat(target.getAttribute("x")) - event.clientX;
-				offset_y = parseFloat(target.getAttribute("y")) - event.clientY;
+				offset_x = Math.round(parseFloat(target.getAttribute("x")) - event.clientX);
+				offset_y = Math.round(parseFloat(target.getAttribute("y")) - event.clientY);
 			}
 			selected = target;
 		}
@@ -168,11 +168,11 @@ var Selector = function(stage) {
 	window.addEventListener("mousemove",function(event) {
 		if(selected != null) {
 			if(selected.tagName == "circle") {
-				selected.setAttribute("cx",event.clientX + offset_x);
-				selected.setAttribute("cy",event.clientY + offset_y);
+				selected.setAttribute("cx","" + (event.clientX + offset_x));
+				selected.setAttribute("cy","" + (event.clientY + offset_y));
 			} else {
-				selected.setAttribute("x",event.clientX + offset_x);
-				selected.setAttribute("y",event.clientY + offset_y);
+				selected.setAttribute("x","" + (event.clientX + offset_x));
+				selected.setAttribute("y","" + (event.clientY + offset_y));
 			}
 			updateSelection(selected);
 		}

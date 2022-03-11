@@ -1,5 +1,6 @@
 package;
 
+import js.html.svg.SVGElement;
 import js.Browser.*;
 import js.Browser;
 import js.html.*;
@@ -22,23 +23,20 @@ class Main {
 	}
 
 	function init() {
-		//
-
 		var title:InputElement = cast document.getElementById('title');
-		var wireframe = document.getElementById('wireframe');
-		var createCircle = document.getElementById('createCircle');
-		var createRectangle = document.getElementById('createRectangle');
-		var createText = document.getElementById('createText');
-		var load = document.getElementById('load');
-		var save = document.getElementById('save');
-		var clear = document.getElementById('clear');
+		var wireframe:InputElement = cast document.getElementById('wireframe');
+		var createCircle:ButtonElement = cast document.getElementById('createCircle');
+		var createRectangle:ButtonElement = cast document.getElementById('createRectangle');
+		var createText:ButtonElement = cast document.getElementById('createText');
+		var load:ButtonElement = cast document.getElementById('load');
+		var save:ButtonElement = cast document.getElementById('save');
+		var clear:ButtonElement = cast document.getElementById('clear');
 
-		var stage = document.getElementById('stage');
+		var stage:SVGElement = cast document.getElementById('stage');
 		var textarea:TextAreaElement = cast document.getElementById('textarea');
 
-		var editor = new Editor(cast stage);
-		editor.setSource(new Source(cast textarea));
-
+		var editor = new Editor(stage);
+		editor.setSource(new Source(textarea));
 		var selector = new Selector(stage);
 
 		//
@@ -80,7 +78,6 @@ class Main {
 
 		// LOAD
 		var form:FormElement = cast document.createElement('form');
-
 		form.style.display = 'none';
 		document.body.appendChild(form);
 
@@ -105,7 +102,6 @@ class Main {
 
 		// SAVE
 		var link:LinkElement = cast document.createElement('a');
-
 		link.style.display = 'none';
 		document.body.appendChild(link);
 		save.addEventListener('click', function() {

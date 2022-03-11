@@ -1,9 +1,11 @@
+import js.html.svg.SVGElement;
+import js.html.SpanElement;
 import js.html.Element;
 import js.Browser.*;
 
 class Selector {
-	public function new(stage:Element) {
-		var selection = document.createElement('span');
+	public function new(stage:SVGElement) {
+		var selection:SpanElement = cast document.createElement('span');
 
 		selection.style.position = 'absolute';
 		selection.style.display = 'block';
@@ -12,10 +14,10 @@ class Selector {
 		document.body.appendChild(selection);
 		//
 
-		var selected = null;
+		var selected:SVGElement = null;
 		var offset = {x: 0, y: 0};
 
-		function updateSelection(element) {
+		function updateSelection(element:SVGElement) {
 			if (element.isSameNode(stage)) {
 				selection.style.display = 'none';
 				return;
@@ -41,11 +43,11 @@ class Selector {
 			var target = event.target;
 			if (target.isSameNode(stage) == false) {
 				if (target.tagName == 'circle') {
-					offset.x = untyped parseFloat(target.getAttribute('cx')) - event.clientX;
-					offset.y = untyped parseFloat(target.getAttribute('cy')) - event.clientY;
+					offset.x = Math.round(Std.parseFloat(target.getAttribute('cx')) - event.clientX);
+					offset.y = Math.round(Std.parseFloat(target.getAttribute('cy')) - event.clientY);
 				} else {
-					offset.x = untyped parseFloat(target.getAttribute('x')) - event.clientX;
-					offset.y = untyped parseFloat(target.getAttribute('y')) - event.clientY;
+					offset.x = Math.round(Std.parseFloat(target.getAttribute('x')) - event.clientX);
+					offset.y = Math.round(Std.parseFloat(target.getAttribute('y')) - event.clientY);
 				}
 				selected = target;
 			}
@@ -58,13 +60,13 @@ class Selector {
 		window.addEventListener('mousemove', function(event) {
 			if (selected != null) {
 				if (selected.tagName == 'circle') {
-					untyped selected.setAttribute('cx', event.clientX + offset.x);
-					untyped selected.setAttribute('cy', event.clientY + offset.y);
+					selected.setAttribute('cx', '${event.clientX + offset.x}');
+					selected.setAttribute('cy', '${event.clientY + offset.y}');
 				} else {
-					untyped selected.setAttribute('x', event.clientX + offset.x);
-					untyped selected.setAttribute('y', event.clientY + offset.y);
+					selected.setAttribute('x', '${event.clientX + offset.x}');
+					selected.setAttribute('y', '${event.clientY + offset.y}');
 				}
-				updateSelection(untyped selected);
+				updateSelection(selected);
 			}
 		});
 	}
