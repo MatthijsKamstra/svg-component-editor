@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>SVG Editor</title>
+
+<head>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			color: #888;
+			background: #eee;
+			font-family: sans-serif;
+			font-size: 13px;
+		}
+
+		button {
+			width: 100%;
+			color: #888;
+			background-color: transparent;
+			border: 1px solid #ccc;
+			padding: 4px 8px;
+			text-transform: uppercase;
+			cursor: pointer;
+			outline: none;
+		}
+
+		button:hover {
+			color: #fff;
+			border: transparent;
+			background-color: #999;
+		}
+
+		input {
+			color: #888;
+			padding: 4px 8px;
+		}
+
+		hr {
+			border: 0;
+			padding: 2px 0px;
+		}
+
+		#tools {
+			padding: 0px 10px;
+			display: inline-block;
+			width: 110px;
+			line-height: 24px;
+			vertical-align: top;
+		}
+
+		#content {
+			display: inline-block;
+			width: 600px;
+		}
+
+		#stage {
+			background: #fff;
+		}
+
+		#stage.wireframe * {
+			stroke: #000 !important;
+			stroke-width: 1px !important;
+			fill: transparent !important;
+		}
+
+		#textarea {
+			padding: 10px;
+			color: #888;
+			background-color: #f8f8f8;
+			border: 0px;
+			width: 600px;
+			height: 200px;
+		}
+	</style>
+</head>
+
+<body>
+	<span id="tools">
+		<input id="title" value="Untitled" style="width:100%"></input>
+		<input id="wireframe" type="checkbox"></input> outline
+		<hr />
+		<button id="createCircle">Circle</button>
+		<button id="createRectangle">Rectangle</button>
+		<button id="createText">Text</button>
+		<hr />
+		<button id="load">Load</button>
+		<button id="save">Save</button>
+		<button id="clear">Clear</button>
+	</span>
+	<span id="content">
+		<svg id="stage" width="600" height="400" viewBox="0 0 600 400"></svg>
+		<textarea id="textarea" spellcheck="false"></textarea>
+	</span>
+
+	<script src="js/Editor.js"></script>
+	<script src="js/Selector.js"></script>
+	<script src="js/Source.js"></script>
+	<script>
+
+		const NS = 'http://www.w3.org/2000/svg';
+
+		const WIDTH = 600;
+		const HEIGHT = 400;
+
+		function parseNumber(value) {
+
+			return parseFloat(value.toFixed(2));
+
+		}
+
+		function randomColor() {
+
+			return '#' + Math.floor(Math.random() * 16777215).toString(16);
+
+		}
+
+		//
+
+		var editor = new Editor(stage);
+		editor.setSource(new Source(textarea));
+
+		var selector = new Selector(stage);
+
+		//
+
+		wireframe.addEventListener('change', function () {
+
+			stage.classList.toggle('wireframe');
+
+		});
+
+		createCircle.addEventListener('click', function () {
+
+			var element = document.createElementNS(NS, 'circle');
+			element.setAttribute('cx', parseNumber(Math.random() * WIDTH));
+			element.setAttribute('cy', parseNumber(Math.random() * HEIGHT));
+			element.setAttribute('r', parseNumber(Math.random() * 100));
+			element.style.stroke = 'black';
+			element.style.fill = randomColor();
+
+			editor.addElement(element);
+
+		});
+
+		createRectangle.addEventListener('click', function () {
+
+			var element = document.createElementNS(NS, 'rect');
+			element.setAttribute('x', parseNumber(Math.random() * WIDTH));
+			element.setAttribute('y', parseNumber(Math.random() * HEIGHT));
+			element.setAttribute('width', parseNumber(Math.random() * 100));
+			element.setAttribute('height', parseNumber(Math.random() * 100));
+			element.style.stroke = 'black';
+			element.style.fill = randomColor();
+
+			editor.addElement(element);
+
+		});
+
+		createText.addEventListener('click', function () {
+
+			var element = document.createElementNS(NS, 'text');
+			element.setAttribute('x', parseNumber(Math.random() * WIDTH));
+			element.setAttribute('y', parseNumber(Math.random() * HEIGHT));
+			element.setAttribute('font-size', '30px');
+			element.style.stroke = 'black';
+			element.style.fill = randomColor();
+			element.textContent = 'Hello World';
+
+			editor.addElement(element);
+
+		});
+
+		// LOAD
+
+		var form = document.createElement('form');
+		form.style.display = 'none';
+		document.body.appendChild(form);
+
+		var input = document.createElement('input');
+		input.type = 'file';
+		input.addEventListener('change', function (event) {
+
+			var file = input.files[0];
+
+			title.value = file.name.split('.')[0];
+
+			var reader = new FileReader();
+			reader.addEventListener('load', function (event) {
+
+				var contents = event.target.result;
+				editor.setSVG(new DOMParser().parseFromString(contents, 'image/svg+xml'));
+
+			}, false);
+			reader.readAsText(file);
+
+			form.reset();
+
+		});
+		form.appendChild(input);
+
+		load.addEventListener('click', function () {
+
+			input.click();
+
+		});
+
+		// SAVE
+
+		var link = document.createElement('a');
+		link.style.display = 'none';
+		document.body.appendChild(link);
+
+		save.addEventListener('click', function () {
+
+			var blob = new Blob([editor.toString()], { type: 'text/plain' });
+
+			link.href = URL.createObjectURL(blob);
+			link.download = title.value + '.svg';
+			link.click();
+
+		});
+
+		// CLEAR
+
+		clear.addEventListener('click', function () {
+
+			editor.clear();
+
+		});
+
+	</script>
+
+</body>
+
+</html>
