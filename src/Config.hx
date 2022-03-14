@@ -1,6 +1,5 @@
-package;
-
 class Config {
-	public static var IGNORE:String = 'ignore';
-	public static var GROUP_BTN:String = 'group-btn';
+	public static var WIDTH = 600;
+	public static var HEIGHT = 400;
+	public static var GRID = Config.WIDTH / 12;
 }

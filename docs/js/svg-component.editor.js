@@ -26,8 +26,8 @@ Editor.prototype = {
 	}
 };
 var Main = function() {
-	this.HEIGHT = 400;
-	this.WIDTH = 600;
+	this.HEIGHT = Config.HEIGHT;
+	this.WIDTH = Config.WIDTH;
 	$global.console.info("Svg-component-editor");
 	this.init();
 };
@@ -57,7 +57,7 @@ Main.prototype = {
 			stage.classList.toggle("wireframe");
 		});
 		createCircle.addEventListener("click",function() {
-			var element = window.document.createElementNS(svg_Config.NS,"circle");
+			var element = window.document.createElementNS(svg_Default.NS,"circle");
 			element.setAttribute("cx",_gthis.parseNumber(Math.random() * _gthis.WIDTH));
 			element.setAttribute("cy",_gthis.parseNumber(Math.random() * _gthis.HEIGHT));
 			element.setAttribute("r",_gthis.parseNumber(Math.random() * 100));
@@ -66,7 +66,7 @@ Main.prototype = {
 			editor.addElement(element);
 		});
 		createRectangle.addEventListener("click",function() {
-			var element = window.document.createElementNS(svg_Config.NS,"rect");
+			var element = window.document.createElementNS(svg_Default.NS,"rect");
 			element.setAttribute("x",_gthis.parseNumber(Math.random() * _gthis.WIDTH));
 			element.setAttribute("y",_gthis.parseNumber(Math.random() * _gthis.HEIGHT));
 			element.setAttribute("width",_gthis.parseNumber(Math.random() * 100));
@@ -76,22 +76,22 @@ Main.prototype = {
 			editor.addElement(element);
 		});
 		btnImage.addEventListener("click",function() {
-			console.log("src/Main.hx:84:","btnImage");
-			var group = svg_Group.create(10,10);
-			group.id = Config.GROUP_BTN;
-			group.appendChild(svg_Rect.create(0,0,100,100));
+			console.log("src/Main.hx:83:","btnImage");
+			var group = svg_Group.create(Config.GRID,Config.GRID);
+			group.id = Names.GROUP_BTN;
+			group.appendChild(svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2));
 			group.appendChild(svg_Text.create("Image",5,Math.round(55.)));
 			editor.addElement(group);
 		});
 		btnButton.addEventListener("click",function() {
-			console.log("src/Main.hx:93:","btnButton");
-			var group = svg_Group.create(10,10);
+			console.log("src/Main.hx:92:","btnButton");
+			var group = svg_Group.create(Config.GRID,Config.GRID);
 			group.appendChild(svg_Rect.create(0,0,100,20));
 			group.appendChild(svg_Text.create("Submit",5,15));
 			editor.addElement(group);
 		});
 		createText.addEventListener("click",function() {
-			var element = window.document.createElementNS(svg_Config.NS,"text");
+			var element = window.document.createElementNS(svg_Default.NS,"text");
 			element.setAttribute("x",_gthis.parseNumber(Math.random() * _gthis.WIDTH));
 			element.setAttribute("y",_gthis.parseNumber(Math.random() * _gthis.HEIGHT));
 			element.setAttribute("font-size","30px");
@@ -135,19 +135,20 @@ Main.prototype = {
 	}
 	,setupGrid: function(stage,editor) {
 		var group = svg_Group.create(0,0);
-		group.id = "grid";
+		group.id = Names.GROUP_GRID;
+		group.classList.add(Names.IGNORE);
 		var gridW = this.WIDTH / 12;
 		var _g = 0;
 		while(_g < 13) {
 			var i = _g++;
 			var line = svg_Line.vertical(Math.round(i * gridW),0,this.HEIGHT);
-			line.classList.add(Config.IGNORE);
+			line.classList.add(Names.IGNORE);
 			group.appendChild(line);
 			var _g1 = 0;
 			while(_g1 < 13) {
 				var j = _g1++;
 				var circle = svg_Circle.create(Math.round(i * gridW),Math.round(j * gridW),1);
-				circle.classList.add(Config.IGNORE);
+				circle.classList.add(Names.IGNORE);
 				group.appendChild(circle);
 			}
 		}
@@ -160,85 +161,98 @@ Main.prototype = {
 		return "#" + Math.floor(Math.random() * 16777215).toString(16);
 	}
 };
+var Names = function() { };
 var Selector = function(stage) {
-	var selection = window.document.createElement("span");
-	selection.style.position = "absolute";
-	selection.style.display = "block";
-	selection.style.outline = "solid 2px #99f";
-	selection.style.pointerEvents = "none";
-	window.document.body.appendChild(selection);
-	var selected = null;
-	var offset_y;
-	var offset_x = 0;
-	offset_y = 0;
-	var updateSelection = function(element) {
-		if(element.isSameNode(stage)) {
-			selection.style.display = "none";
-			return;
-		}
-		if(element.classList.contains(Config.IGNORE)) {
-			selection.style.display = "none";
-			return;
-		}
-		if(element.classList.contains(Config.IGNORE)) {
-			selection.style.display = "none";
-			return;
-		}
-		console.log("src/Selector.hx:36:",element.parentElement.nodeName);
-		var rect = element.getBoundingClientRect();
-		selection.style.left = rect.left + "px";
-		selection.style.top = rect.top + "px";
-		selection.style.width = rect.width + "px";
-		selection.style.height = rect.height + "px";
-		selection.style.display = "block";
-	};
-	var isParentAGroup = function(target) {
-		var isParentAGroup = target.parentElement.nodeName == "svg";
-		if(target.parentElement.nodeName == "g") {
-			target = target.parentElement;
-		}
-		return target;
-	};
+	this.offset = { x : 0, y : 0};
+	this.selected = null;
+	var _gthis = this;
+	this.stage = stage;
+	this.selection = window.document.createElement("span");
+	this.selection.style.position = "absolute";
+	this.selection.style.display = "block";
+	this.selection.style.outline = "solid 2px #99f";
+	this.selection.style.pointerEvents = "none";
+	window.document.body.appendChild(this.selection);
 	stage.addEventListener("mouseover",function(event) {
-		var target = isParentAGroup(event.target);
-		updateSelection(target);
+		var target = _gthis.isParentAGroup(event.target);
+		_gthis.updateSelection(target);
 	});
 	stage.addEventListener("mousedown",function(event) {
-		var target = isParentAGroup(event.target);
-		if(target.isSameNode(stage) == false) {
+		var target = _gthis.isParentAGroup(event.target);
+		if(target != null && target.isSameNode(stage) == false) {
 			if(target.tagName == "circle") {
-				offset_x = Math.round(parseFloat(target.getAttribute("cx")) - event.clientX);
-				offset_y = Math.round(parseFloat(target.getAttribute("cy")) - event.clientY);
+				var tmp = parseFloat(target.getAttribute("cx")) - event.clientX;
+				_gthis.offset.x = Math.round(tmp);
+				var tmp = parseFloat(target.getAttribute("cy")) - event.clientY;
+				_gthis.offset.y = Math.round(tmp);
 			} else if(target.tagName == "g") {
 				var tr = StringTools.replace(StringTools.replace(target.getAttribute("transform"),"translate(",""),")","");
 				var _x = tr.split(",")[0];
 				var _y = tr.split(",")[1];
-				offset_x = Math.round(parseFloat(_x) - event.clientX);
-				offset_y = Math.round(parseFloat(_y) - event.clientY);
+				var tmp = parseFloat(_x) - event.clientX;
+				_gthis.offset.x = Math.round(tmp);
+				var tmp = parseFloat(_y) - event.clientY;
+				_gthis.offset.y = Math.round(tmp);
 			} else {
-				offset_x = Math.round(parseFloat(target.getAttribute("x")) - event.clientX);
-				offset_y = Math.round(parseFloat(target.getAttribute("y")) - event.clientY);
+				var tmp = parseFloat(target.getAttribute("x")) - event.clientX;
+				_gthis.offset.x = Math.round(tmp);
+				var tmp = parseFloat(target.getAttribute("y")) - event.clientY;
+				_gthis.offset.y = Math.round(tmp);
 			}
-			selected = target;
+			_gthis.selected = target;
 		}
 	});
 	stage.addEventListener("mouseup",function(event) {
-		selected = null;
+		_gthis.selected = null;
 	});
 	window.addEventListener("mousemove",function(event) {
-		if(selected != null) {
-			if(selected.tagName == "circle") {
-				selected.setAttribute("cx","" + (event.clientX + offset_x));
-				selected.setAttribute("cy","" + (event.clientY + offset_y));
-			} else if(selected.tagName == "g") {
-				selected.setAttribute("transform","translate(" + (event.clientX + offset_x) + "," + (event.clientY + offset_y) + ")");
+		if(_gthis.selected != null) {
+			var _off = Config.GRID;
+			var _x = event.clientX + _gthis.offset.x;
+			var _y = event.clientY + _gthis.offset.y;
+			_x = Math.round((event.clientX + _gthis.offset.x) / _off) * _off;
+			_y = Math.round((event.clientY + _gthis.offset.y) / _off) * _off;
+			if(_gthis.selected.tagName == "circle") {
+				_gthis.selected.setAttribute("cx","" + _x);
+				_gthis.selected.setAttribute("cy","" + _y);
+			} else if(_gthis.selected.tagName == "g") {
+				_gthis.selected.setAttribute("transform","translate(" + _x + "," + _y + ")");
 			} else {
-				selected.setAttribute("x","" + (event.clientX + offset_x));
-				selected.setAttribute("y","" + (event.clientY + offset_y));
+				_gthis.selected.setAttribute("x","" + _x);
+				_gthis.selected.setAttribute("y","" + _y);
 			}
-			updateSelection(selected);
+			_gthis.updateSelection(_gthis.selected);
 		}
 	});
+};
+Selector.prototype = {
+	updateSelection: function(element) {
+		if(element == null || element.isSameNode(this.stage)) {
+			this.selection.style.display = "none";
+			return;
+		}
+		if(element.classList.contains(Names.IGNORE)) {
+			this.selection.style.display = "none";
+			return;
+		}
+		var rect = element.getBoundingClientRect();
+		this.selection.style.left = rect.left + "px";
+		this.selection.style.top = rect.top + "px";
+		this.selection.style.width = rect.width + "px";
+		this.selection.style.height = rect.height + "px";
+		this.selection.style.display = "block";
+	}
+	,isParentAGroup: function(target) {
+		if(target.classList.contains(Names.IGNORE)) {
+			this.selected = null;
+			return null;
+		}
+		var tmp = target.parentElement.nodeName == "svg";
+		if(target.parentElement.nodeName == "g") {
+			target = target.parentElement;
+		}
+		return target;
+	}
 };
 var Source = function(dom) {
 	this.dom = dom;
@@ -275,7 +289,7 @@ svg_Circle.create = function(x,y,r) {
 	if(x == null) {
 		x = 0;
 	}
-	var element = window.document.createElementNS(svg_Config.NS,"circle");
+	var element = window.document.createElementNS(svg_Default.NS,"circle");
 	element.setAttribute("cx","" + x);
 	element.setAttribute("cy","" + y);
 	element.setAttribute("r","" + r);
@@ -283,7 +297,7 @@ svg_Circle.create = function(x,y,r) {
 	element.style.fill = "silver";
 	return element;
 };
-var svg_Config = function() { };
+var svg_Default = function() { };
 var svg_Group = function() { };
 svg_Group.create = function(x,y) {
 	if(y == null) {
@@ -292,7 +306,7 @@ svg_Group.create = function(x,y) {
 	if(x == null) {
 		x = 0;
 	}
-	var element = window.document.createElementNS(svg_Config.NS,"g");
+	var element = window.document.createElementNS(svg_Default.NS,"g");
 	element.setAttribute("transform","translate(" + x + "," + y + ")");
 	return element;
 };
@@ -304,7 +318,7 @@ svg_Line.create = function(x1,y1,x2,y2) {
 	if(x1 == null) {
 		x1 = 0;
 	}
-	var element = window.document.createElementNS(svg_Config.NS,"line");
+	var element = window.document.createElementNS(svg_Default.NS,"line");
 	element.setAttribute("x1","" + x1);
 	element.setAttribute("y1","" + y1);
 	element.setAttribute("x2","" + x2);
@@ -338,7 +352,7 @@ svg_Rect.create = function(x,y,w,h) {
 	if(x == null) {
 		x = 0;
 	}
-	var element = window.document.createElementNS(svg_Config.NS,"rect");
+	var element = window.document.createElementNS(svg_Default.NS,"rect");
 	element.setAttribute("x","" + x);
 	element.setAttribute("y","" + y);
 	element.setAttribute("width","" + w);
@@ -361,7 +375,7 @@ svg_Text.create = function(content,x,y,w,h) {
 	if(x == null) {
 		x = 0;
 	}
-	var element = window.document.createElementNS(svg_Config.NS,"text");
+	var element = window.document.createElementNS(svg_Default.NS,"text");
 	element.setAttribute("x","" + x);
 	element.setAttribute("y","" + y);
 	element.setAttribute("font-size","16px");
@@ -370,9 +384,13 @@ svg_Text.create = function(content,x,y,w,h) {
 	element.textContent = content;
 	return element;
 };
-Config.IGNORE = "ignore";
-Config.GROUP_BTN = "group-btn";
-svg_Config.NS = "http://www.w3.org/2000/svg";
+Config.WIDTH = 600;
+Config.HEIGHT = 400;
+Config.GRID = Config.WIDTH / 12;
+Names.IGNORE = "ignore";
+Names.GROUP_BTN = "group-btn";
+Names.GROUP_GRID = "group-grid";
+svg_Default.NS = "http://www.w3.org/2000/svg";
 Main.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
 

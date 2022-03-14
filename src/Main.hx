@@ -4,8 +4,8 @@ import svg.Group;
 import js.html.svg.SVGElement;
 import js.Browser.*;
 import js.html.*;
-import svg.Config.NS;
-import Config.*;
+import svg.Default.NS;
+import Names.*;
 
 /**
  * @author Matthijs Kamstra aka [mck]
@@ -14,9 +14,8 @@ import Config.*;
 class Main {
 	var container:js.html.DivElement;
 
-	// var NS = 'http://www.w3.org/2000/svg';
-	var WIDTH = 600;
-	var HEIGHT = 400;
+	var WIDTH = Config.WIDTH;
+	var HEIGHT = Config.HEIGHT;
 
 	public function new() {
 		console.info('Svg-component-editor');
@@ -82,16 +81,16 @@ class Main {
 
 		btnImage.addEventListener('click', function() {
 			trace("btnImage");
-			var group = Group.create(10, 10);
+			var group = Group.create(Config.GRID, Config.GRID);
 			group.id = GROUP_BTN;
-			group.appendChild(svg.Rect.create(0, 0, 100, 100));
+			group.appendChild(svg.Rect.create(0, 0, Config.GRID * 2, Config.GRID * 2));
 			group.appendChild(svg.Text.create('Image', 5, Math.round((100 / 2) + 5)));
 			editor.addElement(group);
 		});
 
 		btnButton.addEventListener('click', function() {
 			trace("btnButton");
-			var group = Group.create(10, 10);
+			var group = Group.create(Config.GRID, Config.GRID);
 			group.appendChild(svg.Rect.create(0, 0, 100, 20));
 			group.appendChild(svg.Text.create('Submit', 5, 15));
 			editor.addElement(group);
@@ -152,7 +151,8 @@ class Main {
 	// setup grid
 	function setupGrid(stage:SVGElement, editor) {
 		var group = Group.create(0, 0);
-		group.id = 'grid';
+		group.id = GROUP_GRID;
+		group.classList.add(IGNORE);
 		var gridW = WIDTH / 12;
 		for (i in 0...13) {
 			var line = svg.Line.vertical(Math.round(i * gridW), 0, HEIGHT);

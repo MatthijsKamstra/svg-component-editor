@@ -2,7 +2,7 @@ package svg;
 
 import js.Browser.*;
 import js.html.*;
-import svg.Config.NS;
+import svg.Default.NS;
 
 class Circle {
 	public static function create(x:Int = 0, y:Int = 0, r:Int = 100):Element {

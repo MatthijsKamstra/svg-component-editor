@@ -2,7 +2,7 @@ package svg;
 
 import js.Browser.*;
 import js.html.*;
-import svg.Config.NS;
+import svg.Default.NS;
 
 // <line x1="0" y1="80" x2="100" y2="20" stroke="black" />
 class Line {

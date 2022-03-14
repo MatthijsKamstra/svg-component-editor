@@ -2,7 +2,7 @@ package svg;
 
 import js.Browser.*;
 import js.html.*;
-import svg.Config.NS;
+import svg.Default.NS;
 
 class Text {
 	public static function create(content:String, x:Int = 0, y:Int = 0, w:Int = 100, h:Int = 16):Element {

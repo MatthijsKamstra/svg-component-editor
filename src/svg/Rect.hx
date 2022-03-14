@@ -2,10 +2,10 @@ package svg;
 
 import js.Browser.*;
 import js.html.*;
-import svg.Config.NS;
+import svg.Default.NS;
 
 class Rect {
-	public static function create(x:Int = 0, y:Int = 0, w:Int = 100, h:Int = 16):Element {
+	public static function create(x:Float = 0, y:Float = 0, w:Float = 100, h:Float = 16):Element {
 		var element = document.createElementNS(NS, 'rect');
 		element.setAttribute('x', '${x}');
 		element.setAttribute('y', '${y}');

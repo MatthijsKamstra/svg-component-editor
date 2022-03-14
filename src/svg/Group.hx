@@ -2,10 +2,10 @@ package svg;
 
 import js.Browser.*;
 import js.html.*;
-import svg.Config.NS;
+import svg.Default.NS;
 
 class Group {
-	public static function create(x:Int = 0, y:Int = 0):Element {
+	public static function create(x:Float = 0, y:Float = 0):Element {
 		var element = document.createElementNS(NS, 'g');
 		// element.setAttribute('x', '${x}');
 		// element.setAttribute('y', '${y}');
