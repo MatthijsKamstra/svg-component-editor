@@ -6,6 +6,7 @@ import js.Browser.*;
 import js.html.*;
 import svg.Default.NS;
 import Names.*;
+import tools.*;
 
 /**
  * @author Matthijs Kamstra aka [mck]

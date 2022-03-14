@@ -1,4 +1,7 @@
+package tools;
+
 import js.html.svg.SVGElement;
+import js.html.DivElement;
 import js.html.SpanElement;
 import js.html.Element;
 import js.Browser.*;
@@ -19,6 +22,20 @@ class Selector {
 		selection.style.display = 'block';
 		selection.style.outline = 'solid 2px #99f';
 		selection.style.pointerEvents = 'none';
+
+		var cir:DivElement = cast document.createDivElement();
+		cir.className = 'svg-element-resizer';
+		cir.style.position = 'absolute';
+		cir.style.display = 'block';
+		cir.style.border = 'solid 10px';
+		cir.style.pointerEvents = 'none';
+		cir.style.width = '10px';
+		cir.style.height = '10px';
+		cir.style.borderRadius = '10px';
+		cir.style.right = '-5px';
+		cir.style.bottom = '-5px';
+		selection.appendChild(cir);
+
 		document.body.appendChild(selection);
 
 		stage.addEventListener('mouseover', function(event) {

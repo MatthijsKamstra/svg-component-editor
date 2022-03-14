@@ -1,6 +1,5 @@
-package;
+package tools;
 
-import js.html.TextAreaElement;
 import js.html.svg.SVGElement;
 import js.Browser.*;
 

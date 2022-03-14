@@ -1,30 +1,5 @@
 (function ($global) { "use strict";
 var Config = function() { };
-var Editor = function(svg) {
-	this.svg = svg;
-	this.source = null;
-};
-Editor.prototype = {
-	addElement: function(element) {
-		this.svg.appendChild(element);
-		this.svg.appendChild(window.document.createTextNode("\n"));
-		this.source.setText(this.toString());
-	}
-	,setSource: function(source) {
-		this.source = source;
-	}
-	,setSVG: function(svg) {
-		this.svg.innerHTML = svg.documentElement.innerHTML;
-		this.source.setText(this.toString());
-	}
-	,clear: function() {
-		this.svg.textContent = "";
-		this.source.setText(this.toString());
-	}
-	,toString: function() {
-		return ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n","<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 400\">\n",this.svg.innerHTML,"</svg>"].join("");
-	}
-};
 var Main = function() {
 	this.HEIGHT = Config.HEIGHT;
 	this.WIDTH = Config.WIDTH;
@@ -49,9 +24,9 @@ Main.prototype = {
 		var clear = window.document.getElementById("clear");
 		var stage = window.document.getElementById("stage");
 		var textarea = window.document.getElementById("textarea");
-		var editor = new Editor(stage);
-		editor.setSource(new Source(textarea));
-		var selector = new Selector(stage);
+		var editor = new tools_Editor(stage);
+		editor.setSource(new tools_Source(textarea));
+		var selector = new tools_Selector(stage);
 		this.setupGrid(stage,editor);
 		wireframe.addEventListener("change",function() {
 			stage.classList.toggle("wireframe");
@@ -76,7 +51,7 @@ Main.prototype = {
 			editor.addElement(element);
 		});
 		btnImage.addEventListener("click",function() {
-			console.log("src/Main.hx:83:","btnImage");
+			console.log("src/Main.hx:84:","btnImage");
 			var group = svg_Group.create(Config.GRID,Config.GRID);
 			group.id = Names.GROUP_BTN;
 			group.appendChild(svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2));
@@ -84,7 +59,7 @@ Main.prototype = {
 			editor.addElement(group);
 		});
 		btnButton.addEventListener("click",function() {
-			console.log("src/Main.hx:92:","btnButton");
+			console.log("src/Main.hx:93:","btnButton");
 			var group = svg_Group.create(Config.GRID,Config.GRID);
 			group.appendChild(svg_Rect.create(0,0,100,20));
 			group.appendChild(svg_Text.create("Submit",5,15));
@@ -162,106 +137,6 @@ Main.prototype = {
 	}
 };
 var Names = function() { };
-var Selector = function(stage) {
-	this.offset = { x : 0, y : 0};
-	this.selected = null;
-	var _gthis = this;
-	this.stage = stage;
-	this.selection = window.document.createElement("span");
-	this.selection.style.position = "absolute";
-	this.selection.style.display = "block";
-	this.selection.style.outline = "solid 2px #99f";
-	this.selection.style.pointerEvents = "none";
-	window.document.body.appendChild(this.selection);
-	stage.addEventListener("mouseover",function(event) {
-		var target = _gthis.isParentAGroup(event.target);
-		_gthis.updateSelection(target);
-	});
-	stage.addEventListener("mousedown",function(event) {
-		var target = _gthis.isParentAGroup(event.target);
-		if(target != null && target.isSameNode(stage) == false) {
-			if(target.tagName == "circle") {
-				var tmp = parseFloat(target.getAttribute("cx")) - event.clientX;
-				_gthis.offset.x = Math.round(tmp);
-				var tmp = parseFloat(target.getAttribute("cy")) - event.clientY;
-				_gthis.offset.y = Math.round(tmp);
-			} else if(target.tagName == "g") {
-				var tr = StringTools.replace(StringTools.replace(target.getAttribute("transform"),"translate(",""),")","");
-				var _x = tr.split(",")[0];
-				var _y = tr.split(",")[1];
-				var tmp = parseFloat(_x) - event.clientX;
-				_gthis.offset.x = Math.round(tmp);
-				var tmp = parseFloat(_y) - event.clientY;
-				_gthis.offset.y = Math.round(tmp);
-			} else {
-				var tmp = parseFloat(target.getAttribute("x")) - event.clientX;
-				_gthis.offset.x = Math.round(tmp);
-				var tmp = parseFloat(target.getAttribute("y")) - event.clientY;
-				_gthis.offset.y = Math.round(tmp);
-			}
-			_gthis.selected = target;
-		}
-	});
-	stage.addEventListener("mouseup",function(event) {
-		_gthis.selected = null;
-	});
-	window.addEventListener("mousemove",function(event) {
-		if(_gthis.selected != null) {
-			var _off = Config.GRID;
-			var _x = event.clientX + _gthis.offset.x;
-			var _y = event.clientY + _gthis.offset.y;
-			_x = Math.round((event.clientX + _gthis.offset.x) / _off) * _off;
-			_y = Math.round((event.clientY + _gthis.offset.y) / _off) * _off;
-			if(_gthis.selected.tagName == "circle") {
-				_gthis.selected.setAttribute("cx","" + _x);
-				_gthis.selected.setAttribute("cy","" + _y);
-			} else if(_gthis.selected.tagName == "g") {
-				_gthis.selected.setAttribute("transform","translate(" + _x + "," + _y + ")");
-			} else {
-				_gthis.selected.setAttribute("x","" + _x);
-				_gthis.selected.setAttribute("y","" + _y);
-			}
-			_gthis.updateSelection(_gthis.selected);
-		}
-	});
-};
-Selector.prototype = {
-	updateSelection: function(element) {
-		if(element == null || element.isSameNode(this.stage)) {
-			this.selection.style.display = "none";
-			return;
-		}
-		if(element.classList.contains(Names.IGNORE)) {
-			this.selection.style.display = "none";
-			return;
-		}
-		var rect = element.getBoundingClientRect();
-		this.selection.style.left = rect.left + "px";
-		this.selection.style.top = rect.top + "px";
-		this.selection.style.width = rect.width + "px";
-		this.selection.style.height = rect.height + "px";
-		this.selection.style.display = "block";
-	}
-	,isParentAGroup: function(target) {
-		if(target.classList.contains(Names.IGNORE)) {
-			this.selected = null;
-			return null;
-		}
-		var tmp = target.parentElement.nodeName == "svg";
-		if(target.parentElement.nodeName == "g") {
-			target = target.parentElement;
-		}
-		return target;
-	}
-};
-var Source = function(dom) {
-	this.dom = dom;
-};
-Source.prototype = {
-	setText: function(text) {
-		this.dom.textContent = text;
-	}
-};
 var StringTools = function() { };
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
@@ -383,6 +258,143 @@ svg_Text.create = function(content,x,y,w,h) {
 	element.style.fill = "black";
 	element.textContent = content;
 	return element;
+};
+var tools_Editor = function(svg) {
+	this.svg = svg;
+	this.source = null;
+};
+tools_Editor.prototype = {
+	addElement: function(element) {
+		this.svg.appendChild(element);
+		this.svg.appendChild(window.document.createTextNode("\n"));
+		this.source.setText(this.toString());
+	}
+	,setSource: function(source) {
+		this.source = source;
+	}
+	,setSVG: function(svg) {
+		this.svg.innerHTML = svg.documentElement.innerHTML;
+		this.source.setText(this.toString());
+	}
+	,clear: function() {
+		this.svg.textContent = "";
+		this.source.setText(this.toString());
+	}
+	,toString: function() {
+		return ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n","<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 600 400\">\n",this.svg.innerHTML,"</svg>"].join("");
+	}
+};
+var tools_Selector = function(stage) {
+	this.offset = { x : 0, y : 0};
+	this.selected = null;
+	var _gthis = this;
+	this.stage = stage;
+	this.selection = window.document.createElement("span");
+	this.selection.style.position = "absolute";
+	this.selection.style.display = "block";
+	this.selection.style.outline = "solid 2px #99f";
+	this.selection.style.pointerEvents = "none";
+	var cir = window.document.createElement("div");
+	cir.className = "svg-element-resizer";
+	cir.style.position = "absolute";
+	cir.style.display = "block";
+	cir.style.border = "solid 10px";
+	cir.style.pointerEvents = "none";
+	cir.style.width = "10px";
+	cir.style.height = "10px";
+	cir.style.borderRadius = "10px";
+	cir.style.right = "-5px";
+	cir.style.bottom = "-5px";
+	this.selection.appendChild(cir);
+	window.document.body.appendChild(this.selection);
+	stage.addEventListener("mouseover",function(event) {
+		var target = _gthis.isParentAGroup(event.target);
+		_gthis.updateSelection(target);
+	});
+	stage.addEventListener("mousedown",function(event) {
+		var target = _gthis.isParentAGroup(event.target);
+		if(target != null && target.isSameNode(stage) == false) {
+			if(target.tagName == "circle") {
+				var tmp = parseFloat(target.getAttribute("cx")) - event.clientX;
+				_gthis.offset.x = Math.round(tmp);
+				var tmp = parseFloat(target.getAttribute("cy")) - event.clientY;
+				_gthis.offset.y = Math.round(tmp);
+			} else if(target.tagName == "g") {
+				var tr = StringTools.replace(StringTools.replace(target.getAttribute("transform"),"translate(",""),")","");
+				var _x = tr.split(",")[0];
+				var _y = tr.split(",")[1];
+				var tmp = parseFloat(_x) - event.clientX;
+				_gthis.offset.x = Math.round(tmp);
+				var tmp = parseFloat(_y) - event.clientY;
+				_gthis.offset.y = Math.round(tmp);
+			} else {
+				var tmp = parseFloat(target.getAttribute("x")) - event.clientX;
+				_gthis.offset.x = Math.round(tmp);
+				var tmp = parseFloat(target.getAttribute("y")) - event.clientY;
+				_gthis.offset.y = Math.round(tmp);
+			}
+			_gthis.selected = target;
+		}
+	});
+	stage.addEventListener("mouseup",function(event) {
+		_gthis.selected = null;
+	});
+	window.addEventListener("mousemove",function(event) {
+		if(_gthis.selected != null) {
+			var _off = Config.GRID;
+			var _x = event.clientX + _gthis.offset.x;
+			var _y = event.clientY + _gthis.offset.y;
+			_x = Math.round((event.clientX + _gthis.offset.x) / _off) * _off;
+			_y = Math.round((event.clientY + _gthis.offset.y) / _off) * _off;
+			if(_gthis.selected.tagName == "circle") {
+				_gthis.selected.setAttribute("cx","" + _x);
+				_gthis.selected.setAttribute("cy","" + _y);
+			} else if(_gthis.selected.tagName == "g") {
+				_gthis.selected.setAttribute("transform","translate(" + _x + "," + _y + ")");
+			} else {
+				_gthis.selected.setAttribute("x","" + _x);
+				_gthis.selected.setAttribute("y","" + _y);
+			}
+			_gthis.updateSelection(_gthis.selected);
+		}
+	});
+};
+tools_Selector.prototype = {
+	updateSelection: function(element) {
+		if(element == null || element.isSameNode(this.stage)) {
+			this.selection.style.display = "none";
+			return;
+		}
+		if(element.classList.contains(Names.IGNORE)) {
+			this.selection.style.display = "none";
+			return;
+		}
+		var rect = element.getBoundingClientRect();
+		this.selection.style.left = rect.left + "px";
+		this.selection.style.top = rect.top + "px";
+		this.selection.style.width = rect.width + "px";
+		this.selection.style.height = rect.height + "px";
+		this.selection.style.display = "block";
+	}
+	,isParentAGroup: function(target) {
+		if(target.classList.contains(Names.IGNORE)) {
+			this.selected = null;
+			return null;
+		}
+		var tmp = target.parentElement.nodeName == "svg";
+		if(target.parentElement.nodeName == "g") {
+			target = target.parentElement;
+		}
+		return target;
+	}
+};
+var tools_Source = function(dom) {
+	this.dom = dom;
+};
+tools_Source.prototype = {
+	setText: function(text) {
+		this.dom.textContent = text;
+	}
 };
 Config.WIDTH = 600;
 Config.HEIGHT = 400;
