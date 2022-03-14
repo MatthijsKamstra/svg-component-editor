@@ -1,13 +1,11 @@
 package;
 
 import svg.Group;
-import svg.Text;
 import js.html.svg.SVGElement;
 import js.Browser.*;
-import js.Browser;
 import js.html.*;
-import model.constants.App;
 import svg.Config.NS;
+import Config.*;
 
 /**
  * @author Matthijs Kamstra aka [mck]
@@ -85,10 +83,12 @@ class Main {
 		btnImage.addEventListener('click', function() {
 			trace("btnImage");
 			var group = Group.create(10, 10);
+			group.id = GROUP_BTN;
 			group.appendChild(svg.Rect.create(0, 0, 100, 100));
 			group.appendChild(svg.Text.create('Image', 5, Math.round((100 / 2) + 5)));
 			editor.addElement(group);
 		});
+
 		btnButton.addEventListener('click', function() {
 			trace("btnButton");
 			var group = Group.create(10, 10);
@@ -156,7 +156,13 @@ class Main {
 		var gridW = WIDTH / 12;
 		for (i in 0...13) {
 			var line = svg.Line.vertical(Math.round(i * gridW), 0, HEIGHT);
+			line.classList.add(IGNORE);
 			group.appendChild(line);
+			for (j in 0...13) {
+				var circle = svg.Circle.create(Math.round(i * gridW), Math.round(j * gridW), 1);
+				circle.classList.add(IGNORE);
+				group.appendChild(circle);
+			}
 		}
 		editor.addElement(group);
 	}

@@ -1,4 +1,5 @@
 (function ($global) { "use strict";
+var Config = function() { };
 var Editor = function(svg) {
 	this.svg = svg;
 	this.source = null;
@@ -75,8 +76,9 @@ Main.prototype = {
 			editor.addElement(element);
 		});
 		btnImage.addEventListener("click",function() {
-			console.log("src/Main.hx:86:","btnImage");
+			console.log("src/Main.hx:84:","btnImage");
 			var group = svg_Group.create(10,10);
+			group.id = Config.GROUP_BTN;
 			group.appendChild(svg_Rect.create(0,0,100,100));
 			group.appendChild(svg_Text.create("Image",5,Math.round(55.)));
 			editor.addElement(group);
@@ -135,32 +137,20 @@ Main.prototype = {
 		var group = svg_Group.create(0,0);
 		group.id = "grid";
 		var gridW = this.WIDTH / 12;
-		var line = svg_Line.vertical(Math.round(0 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(2 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(3 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(4 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(5 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(6 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(7 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(8 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(9 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(10 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(11 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
-		var line = svg_Line.vertical(Math.round(12 * gridW),0,this.HEIGHT);
-		group.appendChild(line);
+		var _g = 0;
+		while(_g < 13) {
+			var i = _g++;
+			var line = svg_Line.vertical(Math.round(i * gridW),0,this.HEIGHT);
+			line.classList.add(Config.IGNORE);
+			group.appendChild(line);
+			var _g1 = 0;
+			while(_g1 < 13) {
+				var j = _g1++;
+				var circle = svg_Circle.create(Math.round(i * gridW),Math.round(j * gridW),1);
+				circle.classList.add(Config.IGNORE);
+				group.appendChild(circle);
+			}
+		}
 		editor.addElement(group);
 	}
 	,parseNumber: function(value) {
@@ -186,6 +176,15 @@ var Selector = function(stage) {
 			selection.style.display = "none";
 			return;
 		}
+		if(element.classList.contains(Config.IGNORE)) {
+			selection.style.display = "none";
+			return;
+		}
+		if(element.classList.contains(Config.IGNORE)) {
+			selection.style.display = "none";
+			return;
+		}
+		console.log("src/Selector.hx:36:",element.parentElement.nodeName);
 		var rect = element.getBoundingClientRect();
 		selection.style.left = rect.left + "px";
 		selection.style.top = rect.top + "px";
@@ -193,18 +192,29 @@ var Selector = function(stage) {
 		selection.style.height = rect.height + "px";
 		selection.style.display = "block";
 	};
+	var isParentAGroup = function(target) {
+		var isParentAGroup = target.parentElement.nodeName == "svg";
+		if(target.parentElement.nodeName == "g") {
+			target = target.parentElement;
+		}
+		return target;
+	};
 	stage.addEventListener("mouseover",function(event) {
-		var target = event.target;
-		console.log("src/Selector.hx:39:",target);
+		var target = isParentAGroup(event.target);
 		updateSelection(target);
 	});
 	stage.addEventListener("mousedown",function(event) {
-		var target = event.target;
+		var target = isParentAGroup(event.target);
 		if(target.isSameNode(stage) == false) {
-			console.log("src/Selector.hx:46:","" + target.tagName);
 			if(target.tagName == "circle") {
 				offset_x = Math.round(parseFloat(target.getAttribute("cx")) - event.clientX);
 				offset_y = Math.round(parseFloat(target.getAttribute("cy")) - event.clientY);
+			} else if(target.tagName == "g") {
+				var tr = StringTools.replace(StringTools.replace(target.getAttribute("transform"),"translate(",""),")","");
+				var _x = tr.split(",")[0];
+				var _y = tr.split(",")[1];
+				offset_x = Math.round(parseFloat(_x) - event.clientX);
+				offset_y = Math.round(parseFloat(_y) - event.clientY);
 			} else {
 				offset_x = Math.round(parseFloat(target.getAttribute("x")) - event.clientX);
 				offset_y = Math.round(parseFloat(target.getAttribute("y")) - event.clientY);
@@ -220,6 +230,8 @@ var Selector = function(stage) {
 			if(selected.tagName == "circle") {
 				selected.setAttribute("cx","" + (event.clientX + offset_x));
 				selected.setAttribute("cy","" + (event.clientY + offset_y));
+			} else if(selected.tagName == "g") {
+				selected.setAttribute("transform","translate(" + (event.clientX + offset_x) + "," + (event.clientY + offset_y) + ")");
 			} else {
 				selected.setAttribute("x","" + (event.clientX + offset_x));
 				selected.setAttribute("y","" + (event.clientY + offset_y));
@@ -236,6 +248,10 @@ Source.prototype = {
 		this.dom.textContent = text;
 	}
 };
+var StringTools = function() { };
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
+};
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
@@ -247,6 +263,25 @@ haxe_iterators_ArrayIterator.prototype = {
 	,next: function() {
 		return this.array[this.current++];
 	}
+};
+var svg_Circle = function() { };
+svg_Circle.create = function(x,y,r) {
+	if(r == null) {
+		r = 100;
+	}
+	if(y == null) {
+		y = 0;
+	}
+	if(x == null) {
+		x = 0;
+	}
+	var element = window.document.createElementNS(svg_Config.NS,"circle");
+	element.setAttribute("cx","" + x);
+	element.setAttribute("cy","" + y);
+	element.setAttribute("r","" + r);
+	element.style.stroke = "black";
+	element.style.fill = "silver";
+	return element;
 };
 var svg_Config = function() { };
 var svg_Group = function() { };
@@ -335,6 +370,8 @@ svg_Text.create = function(content,x,y,w,h) {
 	element.textContent = content;
 	return element;
 };
+Config.IGNORE = "ignore";
+Config.GROUP_BTN = "group-btn";
 svg_Config.NS = "http://www.w3.org/2000/svg";
 Main.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
