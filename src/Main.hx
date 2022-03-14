@@ -1,10 +1,13 @@
 package;
 
+import svg.Group;
+import svg.Text;
 import js.html.svg.SVGElement;
 import js.Browser.*;
 import js.Browser;
 import js.html.*;
 import model.constants.App;
+import svg.Config.NS;
 
 /**
  * @author Matthijs Kamstra aka [mck]
@@ -13,7 +16,7 @@ import model.constants.App;
 class Main {
 	var container:js.html.DivElement;
 
-	var NS = 'http://www.w3.org/2000/svg';
+	// var NS = 'http://www.w3.org/2000/svg';
 	var WIDTH = 600;
 	var HEIGHT = 400;
 
@@ -23,22 +26,36 @@ class Main {
 	}
 
 	function init() {
+		// helpers
 		var title:InputElement = cast document.getElementById('title');
 		var wireframe:InputElement = cast document.getElementById('wireframe');
+
+		// create
 		var createCircle:ButtonElement = cast document.getElementById('createCircle');
 		var createRectangle:ButtonElement = cast document.getElementById('createRectangle');
 		var createText:ButtonElement = cast document.getElementById('createText');
+		//
+		// var btnHeading:ButtonElement = cast document.getElementById("js-createHeading");
+		// var btnParagraph:ButtonElement = cast document.getElementById("js-createParagraph");
+		var btnImage:ButtonElement = cast document.getElementById("js-createImage");
+		var btnButton:ButtonElement = cast document.getElementById("js-createButton");
+
+		// save/load/clear
 		var load:ButtonElement = cast document.getElementById('load');
 		var save:ButtonElement = cast document.getElementById('save');
 		var clear:ButtonElement = cast document.getElementById('clear');
 
+		// elements
 		var stage:SVGElement = cast document.getElementById('stage');
 		var textarea:TextAreaElement = cast document.getElementById('textarea');
 
+		// here we go
 		var editor = new Editor(stage);
 		editor.setSource(new Source(textarea));
 		var selector = new Selector(stage);
 
+		// setup grid
+		setupGrid(stage, editor);
 		//
 		wireframe.addEventListener('change', function() {
 			stage.classList.toggle('wireframe');
@@ -63,6 +80,21 @@ class Main {
 			element.style.stroke = 'black';
 			element.style.fill = randomColor();
 			editor.addElement(element);
+		});
+
+		btnImage.addEventListener('click', function() {
+			trace("btnImage");
+			var group = Group.create(10, 10);
+			group.appendChild(svg.Rect.create(0, 0, 100, 100));
+			group.appendChild(svg.Text.create('Image', 5, Math.round((100 / 2) + 5)));
+			editor.addElement(group);
+		});
+		btnButton.addEventListener('click', function() {
+			trace("btnButton");
+			var group = Group.create(10, 10);
+			group.appendChild(svg.Rect.create(0, 0, 100, 20));
+			group.appendChild(svg.Text.create('Submit', 5, 15));
+			editor.addElement(group);
 		});
 
 		createText.addEventListener('click', function() {
@@ -115,6 +147,18 @@ class Main {
 		clear.addEventListener('click', function() {
 			editor.clear();
 		});
+	}
+
+	// setup grid
+	function setupGrid(stage:SVGElement, editor) {
+		var group = Group.create(0, 0);
+		group.id = 'grid';
+		var gridW = WIDTH / 12;
+		for (i in 0...13) {
+			var line = svg.Line.vertical(Math.round(i * gridW), 0, HEIGHT);
+			group.appendChild(line);
+		}
+		editor.addElement(group);
 	}
 
 	function parseNumber(value) {

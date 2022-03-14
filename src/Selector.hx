@@ -36,6 +36,7 @@ class Selector {
 		//
 		stage.addEventListener('mouseover', function(event) {
 			var target = event.target;
+			trace(target);
 			updateSelection(target);
 		});
 
