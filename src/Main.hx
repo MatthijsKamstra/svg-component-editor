@@ -18,7 +18,7 @@ class Main {
 	var HEIGHT = 400;
 
 	public function new() {
-		trace("Hello 'Example Javascript'");
+		console.info('Svg-component-editor');
 		init();
 	}
 

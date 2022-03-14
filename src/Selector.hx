@@ -42,6 +42,8 @@ class Selector {
 		stage.addEventListener('mousedown', function(event) {
 			var target = event.target;
 			if (target.isSameNode(stage) == false) {
+				trace('${target.tagName}');
+
 				if (target.tagName == 'circle') {
 					offset.x = Math.round(Std.parseFloat(target.getAttribute('cx')) - event.clientX);
 					offset.y = Math.round(Std.parseFloat(target.getAttribute('cy')) - event.clientY);

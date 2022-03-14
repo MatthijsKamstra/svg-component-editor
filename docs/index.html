@@ -19,7 +19,9 @@
 		integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
 
 	<!-- google fonts -->
-	<link href="https://fonts.googleapis.com/css?family=Bitter:700" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
 
 	<!-- ficons -->
 	<link href="https://cdn.jsdelivr.net/npm/ficons@1.1.52/dist/ficons/font.css" rel="stylesheet">
@@ -54,12 +56,14 @@
 		}
 
 		#textarea {
+			font-family: 'Ubuntu Mono', monospace;
 			padding: 10px;
 			color: #888;
 			background-color: #f8f8f8;
 			border: 0px;
 			width: 600px;
 			height: 200px;
+			font-size: 13px;
 		}
 	</style>
 </head>
@@ -102,7 +106,7 @@
 
 					<div class="mb-3">
 						<label for="textarea" class="form-label">Svg code</label>
-						<textarea class="form-control" id="textarea" rows="3"></textarea>
+						<textarea class="form-control" id="textarea" rows="5" spellcheck="false"></textarea>
 					</div>
 
 				</span>

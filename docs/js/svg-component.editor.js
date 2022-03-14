@@ -28,7 +28,7 @@ var Main = function() {
 	this.HEIGHT = 400;
 	this.WIDTH = 600;
 	this.NS = "http://www.w3.org/2000/svg";
-	console.log("src/Main.hx:21:","Hello 'Example Javascript'");
+	$global.console.info("Svg-component-editor");
 	this.init();
 };
 Main.main = function() {
@@ -152,6 +152,7 @@ var Selector = function(stage) {
 	stage.addEventListener("mousedown",function(event) {
 		var target = event.target;
 		if(target.isSameNode(stage) == false) {
+			console.log("src/Selector.hx:45:","" + target.tagName);
 			if(target.tagName == "circle") {
 				offset_x = Math.round(parseFloat(target.getAttribute("cx")) - event.clientX);
 				offset_y = Math.round(parseFloat(target.getAttribute("cy")) - event.clientY);
@@ -199,6 +200,6 @@ haxe_iterators_ArrayIterator.prototype = {
 	}
 };
 Main.main();
-})({});
+})(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
 
 //# sourceMappingURL=svg-component.editor.js.map
