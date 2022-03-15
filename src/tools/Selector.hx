@@ -24,18 +24,18 @@ class Selector {
 		initResizer();
 		initSelector();
 
-		stage.addEventListener('mouseover', function(e) {
+		stage.onmouseover = function(e) {
 			var target:SVGElement = isParentAGroup(e.target);
 			_target = isParentAGroup(e.target);
 			updateSelection(target);
-		});
+		};
 
-		stage.addEventListener('mousedown', function(e) {
+		stage.onmousedown = function(e) {
+			// offset
 			var target = isParentAGroup(e.target);
-			_target = isParentAGroup(e.target);
 			if (target != null && target.isSameNode(stage) == false) {
 				// trace('${target.tagName}');
-				trace('+++++> target: ' + target);
+				// trace('+++++> target: ' + target);
 				if (target.tagName == 'circle') {
 					offset.x = Math.round(Std.parseFloat(target.getAttribute('cx')) - e.clientX);
 					offset.y = Math.round(Std.parseFloat(target.getAttribute('cy')) - e.clientY);
@@ -49,21 +49,41 @@ class Selector {
 					offset.x = Math.round(Std.parseFloat(target.getAttribute('x')) - e.clientX);
 					offset.y = Math.round(Std.parseFloat(target.getAttribute('y')) - e.clientY);
 				}
+				_target = isParentAGroup(e.target);
 				selected = target;
 			}
-		});
+		};
 
-		stage.addEventListener('mouseup', function(e) {
-			selected = null;
-		});
-
-		window.addEventListener('mousemove', function(e) {
+		stage.onmouseup = function(e) {
+			// set on grid
 			if (selected != null && !isResizer) {
 				var _off = Config.GRID;
 				var _x:Float = e.clientX + offset.x;
 				var _y:Float = e.clientY + offset.y;
 				_x = Math.round((e.clientX + offset.x) / _off) * _off;
 				_y = Math.round((e.clientY + offset.y) / _off) * _off;
+				if (selected.tagName == 'circle') {
+					selected.setAttribute('cx', '${_x}');
+					selected.setAttribute('cy', '${_y}');
+				} else if (selected.tagName == 'g') {
+					selected.setAttribute('transform', 'translate(${_x},${_y})');
+				} else {
+					selected.setAttribute('x', '${_x}');
+					selected.setAttribute('y', '${_y}');
+				}
+				updateSelection(selected);
+			}
+			selected = null;
+		};
+
+		window.onmousemove = function(e) {
+			// move outside grid
+			if (selected != null && !isResizer) {
+				var _off = Config.GRID;
+				var _x:Float = e.clientX + offset.x;
+				var _y:Float = e.clientY + offset.y;
+				// _x = Math.round((e.clientX + offset.x) / _off) * _off;
+				// _y = Math.round((e.clientY + offset.y) / _off) * _off;
 				if (selected.tagName == 'circle') {
 					selected.setAttribute('cx', '${_x}');
 					selected.setAttribute('cy', '${_y}');
@@ -88,7 +108,7 @@ class Selector {
 			// 	}
 			// 	updateSelection(selected);
 			// }
-		});
+		};
 	}
 
 	function initResizer() {
@@ -158,12 +178,15 @@ class Selector {
 			selected = null;
 			return null;
 		}
-		if (target.parentElement.nodeName == 'svg') {
+		if (target.nodeName == 'svg') {
 			// trace(target.parentElement.nodeName); // g
 			// target = cast target;
 			// target = cast target;
 			selected = null;
 			return null;
+		}
+		if (target.parentElement.nodeName == 'svg') {
+			target = cast target;
 		}
 		if (target.parentElement.nodeName == 'g') {
 			// trace(target.parentElement.nodeName); // g

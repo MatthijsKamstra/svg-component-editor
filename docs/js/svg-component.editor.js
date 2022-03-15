@@ -1,13 +1,11 @@
 (function ($global) { "use strict";
 var Config = function() { };
-Config.__name__ = true;
 var Main = function() {
 	this.HEIGHT = Config.HEIGHT;
 	this.WIDTH = Config.WIDTH;
 	$global.console.info("Svg-component-editor");
 	this.init();
 };
-Main.__name__ = true;
 Main.main = function() {
 	var app = new Main();
 };
@@ -141,26 +139,16 @@ Main.prototype = {
 		return "#" + Math.floor(Math.random() * 16777215).toString(16);
 	}
 };
-Math.__name__ = true;
 var Names = function() { };
-Names.__name__ = true;
-var Std = function() { };
-Std.__name__ = true;
-Std.string = function(s) {
-	return js_Boot.__string_rec(s,"");
-};
 var StringTools = function() { };
-StringTools.__name__ = true;
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
 };
 var Style = function() { };
-Style.__name__ = true;
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
 };
-haxe_iterators_ArrayIterator.__name__ = true;
 haxe_iterators_ArrayIterator.prototype = {
 	hasNext: function() {
 		return this.current < this.array.length;
@@ -169,74 +157,7 @@ haxe_iterators_ArrayIterator.prototype = {
 		return this.array[this.current++];
 	}
 };
-var js_Boot = function() { };
-js_Boot.__name__ = true;
-js_Boot.__string_rec = function(o,s) {
-	if(o == null) {
-		return "null";
-	}
-	if(s.length >= 5) {
-		return "<...>";
-	}
-	var t = typeof(o);
-	if(t == "function" && (o.__name__ || o.__ename__)) {
-		t = "object";
-	}
-	switch(t) {
-	case "function":
-		return "<function>";
-	case "object":
-		if(((o) instanceof Array)) {
-			var str = "[";
-			s += "\t";
-			var _g = 0;
-			var _g1 = o.length;
-			while(_g < _g1) {
-				var i = _g++;
-				str += (i > 0 ? "," : "") + js_Boot.__string_rec(o[i],s);
-			}
-			str += "]";
-			return str;
-		}
-		var tostr;
-		try {
-			tostr = o.toString;
-		} catch( _g ) {
-			return "???";
-		}
-		if(tostr != null && tostr != Object.toString && typeof(tostr) == "function") {
-			var s2 = o.toString();
-			if(s2 != "[object Object]") {
-				return s2;
-			}
-		}
-		var str = "{\n";
-		s += "\t";
-		var hasp = o.hasOwnProperty != null;
-		var k = null;
-		for( k in o ) {
-		if(hasp && !o.hasOwnProperty(k)) {
-			continue;
-		}
-		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
-			continue;
-		}
-		if(str.length != 2) {
-			str += ", \n";
-		}
-		str += s + k + " : " + js_Boot.__string_rec(o[k],s);
-		}
-		s = s.substring(1);
-		str += "\n" + s + "}";
-		return str;
-	case "string":
-		return o;
-	default:
-		return String(o);
-	}
-};
 var svg_Circle = function() { };
-svg_Circle.__name__ = true;
 svg_Circle.create = function(x,y,r) {
 	if(r == null) {
 		r = 100;
@@ -256,9 +177,7 @@ svg_Circle.create = function(x,y,r) {
 	return element;
 };
 var svg_Default = function() { };
-svg_Default.__name__ = true;
 var svg_Group = function() { };
-svg_Group.__name__ = true;
 svg_Group.create = function(x,y) {
 	if(y == null) {
 		y = 0;
@@ -271,7 +190,6 @@ svg_Group.create = function(x,y) {
 	return element;
 };
 var svg_Line = function() { };
-svg_Line.__name__ = true;
 svg_Line.create = function(x1,y1,x2,y2) {
 	if(y1 == null) {
 		y1 = 0;
@@ -300,7 +218,6 @@ svg_Line.vertical = function(x,y,length) {
 	return svg_Line.create(x,y,x,y + length);
 };
 var svg_Rect = function() { };
-svg_Rect.__name__ = true;
 svg_Rect.create = function(x,y,w,h) {
 	if(h == null) {
 		h = 16;
@@ -324,7 +241,6 @@ svg_Rect.create = function(x,y,w,h) {
 	return element;
 };
 var svg_Text = function() { };
-svg_Text.__name__ = true;
 svg_Text.create = function(content,x,y,w,h) {
 	if(h == null) {
 		h = 16;
@@ -351,7 +267,6 @@ var tools_Editor = function(svg) {
 	this.svg = svg;
 	this.source = null;
 };
-tools_Editor.__name__ = true;
 tools_Editor.prototype = {
 	addElement: function(element) {
 		this.svg.appendChild(element);
@@ -381,16 +296,14 @@ var tools_Selector = function(stage) {
 	this.stage = stage;
 	this.initResizer();
 	this.initSelector();
-	stage.addEventListener("mouseover",function(e) {
+	stage.onmouseover = function(e) {
 		var target = _gthis.isParentAGroup(e.target);
 		_gthis._target = _gthis.isParentAGroup(e.target);
 		_gthis.updateSelection(target);
-	});
-	stage.addEventListener("mousedown",function(e) {
+	};
+	stage.onmousedown = function(e) {
 		var target = _gthis.isParentAGroup(e.target);
-		_gthis._target = _gthis.isParentAGroup(e.target);
 		if(target != null && target.isSameNode(stage) == false) {
-			console.log("src/tools/Selector.hx:38:","+++++> target: " + Std.string(target));
 			if(target.tagName == "circle") {
 				var tmp = parseFloat(target.getAttribute("cx")) - e.clientX;
 				_gthis.offset.x = Math.round(tmp);
@@ -410,13 +323,11 @@ var tools_Selector = function(stage) {
 				var tmp = parseFloat(target.getAttribute("y")) - e.clientY;
 				_gthis.offset.y = Math.round(tmp);
 			}
+			_gthis._target = _gthis.isParentAGroup(e.target);
 			_gthis.selected = target;
 		}
-	});
-	stage.addEventListener("mouseup",function(e) {
-		_gthis.selected = null;
-	});
-	window.addEventListener("mousemove",function(e) {
+	};
+	stage.onmouseup = function(e) {
 		if(_gthis.selected != null && !_gthis.isResizer) {
 			var _off = Config.GRID;
 			var _x = e.clientX + _gthis.offset.x;
@@ -434,9 +345,26 @@ var tools_Selector = function(stage) {
 			}
 			_gthis.updateSelection(_gthis.selected);
 		}
-	});
+		_gthis.selected = null;
+	};
+	window.onmousemove = function(e) {
+		if(_gthis.selected != null && !_gthis.isResizer) {
+			var _off = Config.GRID;
+			var _x = e.clientX + _gthis.offset.x;
+			var _y = e.clientY + _gthis.offset.y;
+			if(_gthis.selected.tagName == "circle") {
+				_gthis.selected.setAttribute("cx","" + _x);
+				_gthis.selected.setAttribute("cy","" + _y);
+			} else if(_gthis.selected.tagName == "g") {
+				_gthis.selected.setAttribute("transform","translate(" + _x + "," + _y + ")");
+			} else {
+				_gthis.selected.setAttribute("x","" + _x);
+				_gthis.selected.setAttribute("y","" + _y);
+			}
+			_gthis.updateSelection(_gthis.selected);
+		}
+	};
 };
-tools_Selector.__name__ = true;
 tools_Selector.prototype = {
 	initResizer: function() {
 		var _gthis = this;
@@ -450,10 +378,10 @@ tools_Selector.prototype = {
 			_gthis.isResizer = false;
 		};
 		this.resizeEl.onmousedown = function(e) {
-			console.log("src/tools/Selector.hx:112:","resizeEl.onmousedown");
+			console.log("src/tools/Selector.hx:132:","resizeEl.onmousedown");
 		};
 		this.resizeEl.onmouseup = function(e) {
-			console.log("src/tools/Selector.hx:115:","resizeEl.onmouseup");
+			console.log("src/tools/Selector.hx:135:","resizeEl.onmouseup");
 		};
 	}
 	,initSelector: function() {
@@ -487,10 +415,11 @@ tools_Selector.prototype = {
 			this.selected = null;
 			return null;
 		}
-		if(target.parentElement.nodeName == "svg") {
+		if(target.nodeName == "svg") {
 			this.selected = null;
 			return null;
 		}
+		var tmp = target.parentElement.nodeName == "svg";
 		if(target.parentElement.nodeName == "g") {
 			target = target.parentElement;
 		}
@@ -500,20 +429,15 @@ tools_Selector.prototype = {
 var tools_Source = function(dom) {
 	this.dom = dom;
 };
-tools_Source.__name__ = true;
 tools_Source.prototype = {
 	setText: function(text) {
 		this.dom.textContent = text;
 	}
 };
 var utils_MathUtil = function() { };
-utils_MathUtil.__name__ = true;
 utils_MathUtil.getRandomInt = function(min,max) {
 	return Math.floor(Math.random() * (max - min)) + min;
 };
-String.__name__ = true;
-Array.__name__ = true;
-js_Boot.__toStr = ({ }).toString;
 Config.WIDTH = 600;
 Config.HEIGHT = 400;
 Config.GRID = Config.WIDTH / 12;
