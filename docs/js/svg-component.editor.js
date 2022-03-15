@@ -379,33 +379,8 @@ var tools_Selector = function(stage) {
 	this.selected = null;
 	var _gthis = this;
 	this.stage = stage;
-	this.resizeEl = window.document.createElement("div");
-	this.resizeEl.className = "svg-element-resizer";
-	window.document.body.appendChild(this.resizeEl);
-	this.resizeEl.onmouseover = function(e) {
-		_gthis.isResizer = true;
-		console.log("src/tools/Selector.hx:30:",e);
-		console.log("src/tools/Selector.hx:31:",_gthis._target);
-		console.log("src/tools/Selector.hx:32:",_gthis.isResizer);
-	};
-	this.resizeEl.onmouseout = function(e) {
-		_gthis.isResizer = false;
-		console.log("src/tools/Selector.hx:36:",e);
-		console.log("src/tools/Selector.hx:37:",_gthis._target);
-		console.log("src/tools/Selector.hx:38:",_gthis.isResizer);
-	};
-	this.resizeEl.onmousedown = function(e) {
-		console.log("src/tools/Selector.hx:41:","resizeEl.onmousedown");
-	};
-	this.resizeEl.onmouseup = function(e) {
-		console.log("src/tools/Selector.hx:44:","resizeEl.onmouseup");
-	};
-	this.selectionEl = window.document.createElement("span");
-	this.selectionEl.style.position = "absolute";
-	this.selectionEl.style.display = "block";
-	this.selectionEl.style.outline = "solid 2px #99f";
-	this.selectionEl.style.pointerEvents = "none";
-	window.document.body.appendChild(this.selectionEl);
+	this.initResizer();
+	this.initSelector();
 	stage.addEventListener("mouseover",function(e) {
 		var target = _gthis.isParentAGroup(e.target);
 		_gthis._target = _gthis.isParentAGroup(e.target);
@@ -415,7 +390,7 @@ var tools_Selector = function(stage) {
 		var target = _gthis.isParentAGroup(e.target);
 		_gthis._target = _gthis.isParentAGroup(e.target);
 		if(target != null && target.isSameNode(stage) == false) {
-			console.log("src/tools/Selector.hx:65:","+++++> target: " + Std.string(target));
+			console.log("src/tools/Selector.hx:38:","+++++> target: " + Std.string(target));
 			if(target.tagName == "circle") {
 				var tmp = parseFloat(target.getAttribute("cx")) - e.clientX;
 				_gthis.offset.x = Math.round(tmp);
@@ -459,24 +434,37 @@ var tools_Selector = function(stage) {
 			}
 			_gthis.updateSelection(_gthis.selected);
 		}
-		if(_gthis.isResizer) {
-			console.log("src/tools/Selector.hx:106:","window.onmousemove");
-			var _off = 1;
-			var _x = e.clientX + _gthis.offset.x;
-			var _y = e.clientY + _gthis.offset.y;
-			_x = Math.round((e.clientX + _gthis.offset.x) / _off) * _off;
-			_y = Math.round((e.clientY + _gthis.offset.y) / _off) * _off;
-			if(_gthis.selected.tagName == "rect") {
-				_gthis.selected.setAttribute("width","" + _x);
-				_gthis.selected.setAttribute("height","" + _y);
-			}
-			_gthis.updateSelection(_gthis.selected);
-		}
 	});
 };
 tools_Selector.__name__ = true;
 tools_Selector.prototype = {
-	updateSelection: function(element) {
+	initResizer: function() {
+		var _gthis = this;
+		this.resizeEl = window.document.createElement("div");
+		this.resizeEl.className = "svg-element-resizer";
+		window.document.body.appendChild(this.resizeEl);
+		this.resizeEl.onmouseover = function(e) {
+			_gthis.isResizer = true;
+		};
+		this.resizeEl.onmouseout = function(e) {
+			_gthis.isResizer = false;
+		};
+		this.resizeEl.onmousedown = function(e) {
+			console.log("src/tools/Selector.hx:112:","resizeEl.onmousedown");
+		};
+		this.resizeEl.onmouseup = function(e) {
+			console.log("src/tools/Selector.hx:115:","resizeEl.onmouseup");
+		};
+	}
+	,initSelector: function() {
+		this.selectionEl = window.document.createElement("span");
+		this.selectionEl.style.position = "absolute";
+		this.selectionEl.style.display = "block";
+		this.selectionEl.style.outline = "solid 2px #99f";
+		this.selectionEl.style.pointerEvents = "none";
+		window.document.body.appendChild(this.selectionEl);
+	}
+	,updateSelection: function(element) {
 		if(element == null || element.isSameNode(this.stage)) {
 			this.selectionEl.style.display = "none";
 			return;
@@ -499,7 +487,10 @@ tools_Selector.prototype = {
 			this.selected = null;
 			return null;
 		}
-		var tmp = target.parentElement.nodeName == "svg";
+		if(target.parentElement.nodeName == "svg") {
+			this.selected = null;
+			return null;
+		}
 		if(target.parentElement.nodeName == "g") {
 			target = target.parentElement;
 		}

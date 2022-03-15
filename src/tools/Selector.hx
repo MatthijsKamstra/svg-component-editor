@@ -21,35 +21,8 @@ class Selector {
 	public function new(stage:SVGElement) {
 		this.stage = stage;
 
-		this.resizeEl = cast document.createDivElement();
-		resizeEl.className = 'svg-element-resizer';
-		document.body.appendChild(resizeEl);
-
-		resizeEl.onmouseover = function(e) {
-			isResizer = true;
-			trace(e);
-			trace(_target);
-			trace(isResizer);
-		}
-		resizeEl.onmouseout = function(e) {
-			isResizer = false;
-			trace(e);
-			trace(_target);
-			trace(isResizer);
-		}
-		resizeEl.onmousedown = function(e) {
-			trace('resizeEl.onmousedown');
-		}
-		resizeEl.onmouseup = function(e) {
-			trace('resizeEl.onmouseup');
-		}
-
-		this.selectionEl = cast document.createElement('span');
-		selectionEl.style.position = 'absolute';
-		selectionEl.style.display = 'block';
-		selectionEl.style.outline = 'solid 2px #99f';
-		selectionEl.style.pointerEvents = 'none';
-		document.body.appendChild(selectionEl);
+		initResizer();
+		initSelector();
 
 		stage.addEventListener('mouseover', function(e) {
 			var target:SVGElement = isParentAGroup(e.target);
@@ -102,20 +75,54 @@ class Selector {
 				}
 				updateSelection(selected);
 			}
-			if (isResizer) {
-				trace('window.onmousemove');
-				var _off = 1; // Config.GRID;
-				var _x:Float = e.clientX + offset.x;
-				var _y:Float = e.clientY + offset.y;
-				_x = Math.round((e.clientX + offset.x) / _off) * _off;
-				_y = Math.round((e.clientY + offset.y) / _off) * _off;
-				if (selected.tagName == 'rect') {
-					selected.setAttribute('width', '${_x}');
-					selected.setAttribute('height', '${_y}');
-				}
-				updateSelection(selected);
-			}
+			// if (isResizer) {
+			// 	trace('window.onmousemove');
+			// 	var _off = 1; // Config.GRID;
+			// 	var _x:Float = e.clientX + offset.x;
+			// 	var _y:Float = e.clientY + offset.y;
+			// 	_x = Math.round((e.clientX + offset.x) / _off) * _off;
+			// 	_y = Math.round((e.clientY + offset.y) / _off) * _off;
+			// 	if (selected.tagName == 'rect') {
+			// 		selected.setAttribute('width', '${_x}');
+			// 		selected.setAttribute('height', '${_y}');
+			// 	}
+			// 	updateSelection(selected);
+			// }
 		});
+	}
+
+	function initResizer() {
+		this.resizeEl = cast document.createDivElement();
+		resizeEl.className = 'svg-element-resizer';
+		document.body.appendChild(resizeEl);
+
+		resizeEl.onmouseover = function(e) {
+			isResizer = true;
+			// trace(e);
+			// trace(_target);
+			// trace(isResizer);
+		}
+		resizeEl.onmouseout = function(e) {
+			isResizer = false;
+			// trace(e);
+			// trace(_target);
+			// trace(isResizer);
+		}
+		resizeEl.onmousedown = function(e) {
+			trace('resizeEl.onmousedown');
+		}
+		resizeEl.onmouseup = function(e) {
+			trace('resizeEl.onmouseup');
+		}
+	}
+
+	function initSelector() {
+		this.selectionEl = cast document.createElement('span');
+		selectionEl.style.position = 'absolute';
+		selectionEl.style.display = 'block';
+		selectionEl.style.outline = 'solid 2px #99f';
+		selectionEl.style.pointerEvents = 'none';
+		document.body.appendChild(selectionEl);
 	}
 
 	function updateSelection(element:SVGElement) {
@@ -153,7 +160,10 @@ class Selector {
 		}
 		if (target.parentElement.nodeName == 'svg') {
 			// trace(target.parentElement.nodeName); // g
-			target = cast target;
+			// target = cast target;
+			// target = cast target;
+			selected = null;
+			return null;
 		}
 		if (target.parentElement.nodeName == 'g') {
 			// trace(target.parentElement.nodeName); // g
