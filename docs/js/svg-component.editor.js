@@ -53,16 +53,23 @@ Main.prototype = {
 		btnImage.addEventListener("click",function() {
 			console.log("src/Main.hx:84:","btnImage");
 			var group = svg_Group.create(Config.GRID,Config.GRID);
-			group.id = Names.GROUP_BTN;
+			group.id = Names.GROUP_IMAGE;
 			group.appendChild(svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2));
-			group.appendChild(svg_Text.create("Image",5,Math.round(55.)));
+			var text = svg_Text.create("Image",Config.GRID,Config.GRID);
+			text.setAttribute("text-anchor","middle");
+			text.setAttribute("dominant-baseline","central");
+			group.appendChild(text);
 			editor.addElement(group);
 		});
 		btnButton.addEventListener("click",function() {
-			console.log("src/Main.hx:93:","btnButton");
+			console.log("src/Main.hx:98:","btnButton");
 			var group = svg_Group.create(Config.GRID,Config.GRID);
-			group.appendChild(svg_Rect.create(0,0,100,20));
-			group.appendChild(svg_Text.create("Submit",5,15));
+			group.id = Names.GROUP_BTN;
+			group.appendChild(svg_Rect.create(0,0,100,Config.GRID * 0.5));
+			var text = svg_Text.create("Submit",50.,Config.GRID * 0.25);
+			text.setAttribute("text-anchor","middle");
+			text.setAttribute("dominant-baseline","central");
+			group.appendChild(text);
 			editor.addElement(group);
 		});
 		createText.addEventListener("click",function() {
@@ -111,19 +118,19 @@ Main.prototype = {
 	,setupGrid: function(stage,editor) {
 		var group = svg_Group.create(0,0);
 		group.id = Names.GROUP_GRID;
-		group.classList.add(Names.IGNORE);
+		group.classList.add(Style.IGNORE);
 		var gridW = this.WIDTH / 12;
 		var _g = 0;
 		while(_g < 13) {
 			var i = _g++;
 			var line = svg_Line.vertical(Math.round(i * gridW),0,this.HEIGHT);
-			line.classList.add(Names.IGNORE);
+			line.classList.add(Style.IGNORE);
 			group.appendChild(line);
 			var _g1 = 0;
 			while(_g1 < 13) {
 				var j = _g1++;
 				var circle = svg_Circle.create(Math.round(i * gridW),Math.round(j * gridW),1);
-				circle.classList.add(Names.IGNORE);
+				circle.classList.add(Style.IGNORE);
 				group.appendChild(circle);
 			}
 		}
@@ -141,6 +148,7 @@ var StringTools = function() { };
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
 };
+var Style = function() { };
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
@@ -289,63 +297,60 @@ var tools_Selector = function(stage) {
 	this.selected = null;
 	var _gthis = this;
 	this.stage = stage;
-	this.selection = window.document.createElement("span");
-	this.selection.style.position = "absolute";
-	this.selection.style.display = "block";
-	this.selection.style.outline = "solid 2px #99f";
-	this.selection.style.pointerEvents = "none";
-	var cir = window.document.createElement("div");
-	cir.className = "svg-element-resizer";
-	cir.style.position = "absolute";
-	cir.style.display = "block";
-	cir.style.border = "solid 10px";
-	cir.style.pointerEvents = "none";
-	cir.style.width = "10px";
-	cir.style.height = "10px";
-	cir.style.borderRadius = "10px";
-	cir.style.right = "-5px";
-	cir.style.bottom = "-5px";
-	this.selection.appendChild(cir);
-	window.document.body.appendChild(this.selection);
-	stage.addEventListener("mouseover",function(event) {
-		var target = _gthis.isParentAGroup(event.target);
+	this.resizeEl = window.document.createElement("div");
+	this.resizeEl.className = "svg-element-resizer";
+	window.document.body.appendChild(this.resizeEl);
+	this.resizeEl.onmouseover = function(e) {
+		console.log("src/tools/Selector.hx:28:",e);
+		console.log("src/tools/Selector.hx:29:",_gthis._target);
+	};
+	this.selectionEl = window.document.createElement("span");
+	this.selectionEl.style.position = "absolute";
+	this.selectionEl.style.display = "block";
+	this.selectionEl.style.outline = "solid 2px #99f";
+	this.selectionEl.style.pointerEvents = "none";
+	window.document.body.appendChild(this.selectionEl);
+	stage.addEventListener("mouseover",function(e) {
+		var target = _gthis.isParentAGroup(e.target);
+		_gthis._target = _gthis.isParentAGroup(e.target);
 		_gthis.updateSelection(target);
 	});
-	stage.addEventListener("mousedown",function(event) {
-		var target = _gthis.isParentAGroup(event.target);
+	stage.addEventListener("mousedown",function(e) {
+		var target = _gthis.isParentAGroup(e.target);
+		_gthis._target = _gthis.isParentAGroup(e.target);
 		if(target != null && target.isSameNode(stage) == false) {
 			if(target.tagName == "circle") {
-				var tmp = parseFloat(target.getAttribute("cx")) - event.clientX;
+				var tmp = parseFloat(target.getAttribute("cx")) - e.clientX;
 				_gthis.offset.x = Math.round(tmp);
-				var tmp = parseFloat(target.getAttribute("cy")) - event.clientY;
+				var tmp = parseFloat(target.getAttribute("cy")) - e.clientY;
 				_gthis.offset.y = Math.round(tmp);
 			} else if(target.tagName == "g") {
 				var tr = StringTools.replace(StringTools.replace(target.getAttribute("transform"),"translate(",""),")","");
 				var _x = tr.split(",")[0];
 				var _y = tr.split(",")[1];
-				var tmp = parseFloat(_x) - event.clientX;
+				var tmp = parseFloat(_x) - e.clientX;
 				_gthis.offset.x = Math.round(tmp);
-				var tmp = parseFloat(_y) - event.clientY;
+				var tmp = parseFloat(_y) - e.clientY;
 				_gthis.offset.y = Math.round(tmp);
 			} else {
-				var tmp = parseFloat(target.getAttribute("x")) - event.clientX;
+				var tmp = parseFloat(target.getAttribute("x")) - e.clientX;
 				_gthis.offset.x = Math.round(tmp);
-				var tmp = parseFloat(target.getAttribute("y")) - event.clientY;
+				var tmp = parseFloat(target.getAttribute("y")) - e.clientY;
 				_gthis.offset.y = Math.round(tmp);
 			}
 			_gthis.selected = target;
 		}
 	});
-	stage.addEventListener("mouseup",function(event) {
+	stage.addEventListener("mouseup",function(e) {
 		_gthis.selected = null;
 	});
-	window.addEventListener("mousemove",function(event) {
+	window.addEventListener("mousemove",function(e) {
 		if(_gthis.selected != null) {
 			var _off = Config.GRID;
-			var _x = event.clientX + _gthis.offset.x;
-			var _y = event.clientY + _gthis.offset.y;
-			_x = Math.round((event.clientX + _gthis.offset.x) / _off) * _off;
-			_y = Math.round((event.clientY + _gthis.offset.y) / _off) * _off;
+			var _x = e.clientX + _gthis.offset.x;
+			var _y = e.clientY + _gthis.offset.y;
+			_x = Math.round((e.clientX + _gthis.offset.x) / _off) * _off;
+			_y = Math.round((e.clientY + _gthis.offset.y) / _off) * _off;
 			if(_gthis.selected.tagName == "circle") {
 				_gthis.selected.setAttribute("cx","" + _x);
 				_gthis.selected.setAttribute("cy","" + _y);
@@ -362,22 +367,24 @@ var tools_Selector = function(stage) {
 tools_Selector.prototype = {
 	updateSelection: function(element) {
 		if(element == null || element.isSameNode(this.stage)) {
-			this.selection.style.display = "none";
+			this.selectionEl.style.display = "none";
 			return;
 		}
-		if(element.classList.contains(Names.IGNORE)) {
-			this.selection.style.display = "none";
+		if(element.classList.contains(Style.IGNORE)) {
+			this.selectionEl.style.display = "none";
 			return;
 		}
 		var rect = element.getBoundingClientRect();
-		this.selection.style.left = rect.left + "px";
-		this.selection.style.top = rect.top + "px";
-		this.selection.style.width = rect.width + "px";
-		this.selection.style.height = rect.height + "px";
-		this.selection.style.display = "block";
+		this.selectionEl.style.left = rect.left + "px";
+		this.selectionEl.style.top = rect.top + "px";
+		this.selectionEl.style.width = rect.width + "px";
+		this.selectionEl.style.height = rect.height + "px";
+		this.selectionEl.style.display = "block";
+		this.resizeEl.style.left = rect.left + rect.width + "px";
+		this.resizeEl.style.top = rect.top + rect.height + "px";
 	}
 	,isParentAGroup: function(target) {
-		if(target.classList.contains(Names.IGNORE)) {
+		if(target.classList.contains(Style.IGNORE)) {
 			this.selected = null;
 			return null;
 		}
@@ -399,9 +406,10 @@ tools_Source.prototype = {
 Config.WIDTH = 600;
 Config.HEIGHT = 400;
 Config.GRID = Config.WIDTH / 12;
-Names.IGNORE = "ignore";
 Names.GROUP_BTN = "group-btn";
+Names.GROUP_IMAGE = "group-image";
 Names.GROUP_GRID = "group-grid";
+Style.IGNORE = "ignore";
 svg_Default.NS = "http://www.w3.org/2000/svg";
 Main.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

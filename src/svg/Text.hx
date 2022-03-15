@@ -5,7 +5,7 @@ import js.html.*;
 import svg.Default.NS;
 
 class Text {
-	public static function create(content:String, x:Int = 0, y:Int = 0, w:Int = 100, h:Int = 16):Element {
+	public static function create(content:String, x:Float = 0, y:Float = 0, w:Float = 100, h:Float = 16):Element {
 		var element = document.createElementNS(NS, 'text');
 		element.setAttribute('x', '${x}');
 		element.setAttribute('y', '${y}');

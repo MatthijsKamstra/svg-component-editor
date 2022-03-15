@@ -10,71 +10,71 @@ using StringTools;
 
 class Selector {
 	var stage:SVGElement;
-	var selection:SpanElement;
+	var selectionEl:SpanElement;
+	var resizeEl:DivElement;
 	var selected:SVGElement = null;
 	var offset = {x: 0, y: 0};
+
+	var _target:SVGElement;
 
 	public function new(stage:SVGElement) {
 		this.stage = stage;
 
-		this.selection = cast document.createElement('span');
-		selection.style.position = 'absolute';
-		selection.style.display = 'block';
-		selection.style.outline = 'solid 2px #99f';
-		selection.style.pointerEvents = 'none';
+		this.resizeEl = cast document.createDivElement();
+		resizeEl.className = 'svg-element-resizer';
+		document.body.appendChild(resizeEl);
 
-		var cir:DivElement = cast document.createDivElement();
-		cir.className = 'svg-element-resizer';
-		cir.style.position = 'absolute';
-		cir.style.display = 'block';
-		cir.style.border = 'solid 10px';
-		cir.style.pointerEvents = 'none';
-		cir.style.width = '10px';
-		cir.style.height = '10px';
-		cir.style.borderRadius = '10px';
-		cir.style.right = '-5px';
-		cir.style.bottom = '-5px';
-		selection.appendChild(cir);
+		resizeEl.onmouseover = function(e) {
+			trace(e);
+			trace(_target);
+		}
 
-		document.body.appendChild(selection);
+		this.selectionEl = cast document.createElement('span');
+		selectionEl.style.position = 'absolute';
+		selectionEl.style.display = 'block';
+		selectionEl.style.outline = 'solid 2px #99f';
+		selectionEl.style.pointerEvents = 'none';
+		document.body.appendChild(selectionEl);
 
-		stage.addEventListener('mouseover', function(event) {
-			var target:SVGElement = isParentAGroup(event.target);
+		stage.addEventListener('mouseover', function(e) {
+			var target:SVGElement = isParentAGroup(e.target);
+			_target = isParentAGroup(e.target);
 			updateSelection(target);
 		});
 
-		stage.addEventListener('mousedown', function(event) {
-			var target = isParentAGroup(event.target);
+		stage.addEventListener('mousedown', function(e) {
+			var target = isParentAGroup(e.target);
+			_target = isParentAGroup(e.target);
 			if (target != null && target.isSameNode(stage) == false) {
 				// trace('${target.tagName}');
 				if (target.tagName == 'circle') {
-					offset.x = Math.round(Std.parseFloat(target.getAttribute('cx')) - event.clientX);
-					offset.y = Math.round(Std.parseFloat(target.getAttribute('cy')) - event.clientY);
+					offset.x = Math.round(Std.parseFloat(target.getAttribute('cx')) - e.clientX);
+					offset.y = Math.round(Std.parseFloat(target.getAttribute('cy')) - e.clientY);
 				} else if (target.tagName == 'g') {
 					var tr = target.getAttribute('transform').replace('translate(', '').replace(')', '');
 					var _x = tr.split(',')[0];
 					var _y = tr.split(',')[1];
-					offset.x = Math.round(Std.parseFloat(_x) - event.clientX);
-					offset.y = Math.round(Std.parseFloat(_y) - event.clientY);
+					offset.x = Math.round(Std.parseFloat(_x) - e.clientX);
+					offset.y = Math.round(Std.parseFloat(_y) - e.clientY);
 				} else {
-					offset.x = Math.round(Std.parseFloat(target.getAttribute('x')) - event.clientX);
-					offset.y = Math.round(Std.parseFloat(target.getAttribute('y')) - event.clientY);
+					offset.x = Math.round(Std.parseFloat(target.getAttribute('x')) - e.clientX);
+					offset.y = Math.round(Std.parseFloat(target.getAttribute('y')) - e.clientY);
 				}
 				selected = target;
 			}
 		});
 
-		stage.addEventListener('mouseup', function(event) {
+		stage.addEventListener('mouseup', function(e) {
 			selected = null;
 		});
 
-		window.addEventListener('mousemove', function(event) {
+		window.addEventListener('mousemove', function(e) {
 			if (selected != null) {
 				var _off = Config.GRID;
-				var _x:Float = event.clientX + offset.x;
-				var _y:Float = event.clientY + offset.y;
-				_x = Math.round((event.clientX + offset.x) / _off) * _off;
-				_y = Math.round((event.clientY + offset.y) / _off) * _off;
+				var _x:Float = e.clientX + offset.x;
+				var _y:Float = e.clientY + offset.y;
+				_x = Math.round((e.clientX + offset.x) / _off) * _off;
+				_y = Math.round((e.clientY + offset.y) / _off) * _off;
 				if (selected.tagName == 'circle') {
 					selected.setAttribute('cx', '${_x}');
 					selected.setAttribute('cy', '${_y}');
@@ -91,11 +91,11 @@ class Selector {
 
 	function updateSelection(element:SVGElement) {
 		if (element == null || element.isSameNode(stage)) {
-			selection.style.display = 'none';
+			selectionEl.style.display = 'none';
 			return;
 		}
-		if (element.classList.contains(Names.IGNORE)) {
-			selection.style.display = 'none';
+		if (element.classList.contains(Style.IGNORE)) {
+			selectionEl.style.display = 'none';
 			return;
 		}
 
@@ -105,16 +105,20 @@ class Selector {
 
 		var rect = element.getBoundingClientRect();
 
-		selection.style.left = rect.left + 'px';
-		selection.style.top = rect.top + 'px';
-		selection.style.width = rect.width + 'px';
-		selection.style.height = rect.height + 'px';
+		// selectionEl
+		selectionEl.style.left = rect.left + 'px';
+		selectionEl.style.top = rect.top + 'px';
+		selectionEl.style.width = rect.width + 'px';
+		selectionEl.style.height = rect.height + 'px';
+		selectionEl.style.display = 'block';
 
-		selection.style.display = 'block';
+		// resizeEl
+		resizeEl.style.left = (rect.left + rect.width) + 'px';
+		resizeEl.style.top = (rect.top + rect.height) + 'px';
 	}
 
 	function isParentAGroup(target:SVGElement):SVGElement {
-		if (target.classList.contains(Names.IGNORE)) {
+		if (target.classList.contains(Style.IGNORE)) {
 			selected = null;
 			return null;
 		}

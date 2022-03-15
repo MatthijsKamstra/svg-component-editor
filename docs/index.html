@@ -67,12 +67,28 @@
 		}
 
 
+		:root {
+			--circle-size: 20px;
+			--circle-half-size: calc(var(--circle-size)*0.5);
+		}
+
+
 		.svg-element-resizer {
 			outline-color: red !important;
+			position: absolute;
+			display: block;
+			border: solid calc(var(--circle-half-size)*0.8) gray;
+			/* outline: solid 8px #99f; */
+			width: var(--circle-size);
+			height: var(--circle-size);
+			border-radius: var(--circle-size);
+			transform: translate(calc(var(--circle-half-size)*-1), calc(var(--circle-half-size)*-1));
+			/* pointerEvents: none; */
 		}
 
 		.svg-element-resizer:hover {
-			outline-color: green !important;
+			border: solid calc(var(--circle-half-size)*0.8) green;
+			/* outline-color: green !important; */
 		}
 	</style>
 </head>

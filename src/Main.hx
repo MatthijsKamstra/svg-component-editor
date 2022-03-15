@@ -83,17 +83,28 @@ class Main {
 		btnImage.addEventListener('click', function() {
 			trace("btnImage");
 			var group = Group.create(Config.GRID, Config.GRID);
-			group.id = GROUP_BTN;
+			group.id = GROUP_IMAGE;
 			group.appendChild(svg.Rect.create(0, 0, Config.GRID * 2, Config.GRID * 2));
-			group.appendChild(svg.Text.create('Image', 5, Math.round((100 / 2) + 5)));
+
+			var text = svg.Text.create('Image', Config.GRID * 1, Config.GRID * 1);
+			text.setAttribute('text-anchor', "middle");
+			text.setAttribute('dominant-baseline', "central");
+			group.appendChild(text);
+
 			editor.addElement(group);
 		});
 
 		btnButton.addEventListener('click', function() {
 			trace("btnButton");
 			var group = Group.create(Config.GRID, Config.GRID);
-			group.appendChild(svg.Rect.create(0, 0, 100, 20));
-			group.appendChild(svg.Text.create('Submit', 5, 15));
+			group.id = GROUP_BTN;
+			group.appendChild(svg.Rect.create(0, 0, 100, Config.GRID * 0.5));
+
+			var text = svg.Text.create('Submit', 100 * 0.5, Config.GRID * 0.25);
+			text.setAttribute('text-anchor', "middle");
+			text.setAttribute('dominant-baseline', "central");
+			group.appendChild(text);
+
 			editor.addElement(group);
 		});
 
@@ -153,15 +164,15 @@ class Main {
 	function setupGrid(stage:SVGElement, editor) {
 		var group = Group.create(0, 0);
 		group.id = GROUP_GRID;
-		group.classList.add(IGNORE);
+		group.classList.add(Style.IGNORE);
 		var gridW = WIDTH / 12;
 		for (i in 0...13) {
 			var line = svg.Line.vertical(Math.round(i * gridW), 0, HEIGHT);
-			line.classList.add(IGNORE);
+			line.classList.add(Style.IGNORE);
 			group.appendChild(line);
 			for (j in 0...13) {
 				var circle = svg.Circle.create(Math.round(i * gridW), Math.round(j * gridW), 1);
-				circle.classList.add(IGNORE);
+				circle.classList.add(Style.IGNORE);
 				group.appendChild(circle);
 			}
 		}
