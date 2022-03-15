@@ -1,12 +1,13 @@
 package;
 
-import svg.Group;
-import js.html.svg.SVGElement;
+import Names.*;
 import js.Browser.*;
 import js.html.*;
+import js.html.svg.SVGElement;
 import svg.Default.NS;
-import Names.*;
+import svg.Group;
 import tools.*;
+import utils.MathUtil;
 
 /**
  * @author Matthijs Kamstra aka [mck]
@@ -70,11 +71,15 @@ class Main {
 		});
 
 		createRectangle.addEventListener('click', function() {
-			var element = document.createElementNS(NS, 'rect');
-			element.setAttribute('x', parseNumber(untyped Math.random() * WIDTH));
-			element.setAttribute('y', parseNumber(untyped Math.random() * HEIGHT));
-			element.setAttribute('width', parseNumber(untyped Math.random() * 100));
-			element.setAttribute('height', parseNumber(untyped Math.random() * 100));
+			// var element = document.createElementNS(NS, 'rect');
+			// element.setAttribute('x', parseNumber(untyped Math.random() * WIDTH));
+			// element.setAttribute('y', parseNumber(untyped Math.random() * HEIGHT));
+			// element.setAttribute('width', parseNumber(untyped Math.random() * 100));
+			// element.setAttribute('height', parseNumber(untyped Math.random() * 100));
+			// element.style.stroke = 'black';
+			// element.style.fill = randomColor();
+			var element = svg.Rect.create(Config.GRID * MathUtil.getRandomInt(1, 4), Config.GRID * MathUtil.getRandomInt(1, 4),
+				Config.GRID * MathUtil.getRandomInt(1, 4), Config.GRID * MathUtil.getRandomInt(1, 4));
 			element.style.stroke = 'black';
 			element.style.fill = randomColor();
 			editor.addElement(element);

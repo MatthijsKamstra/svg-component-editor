@@ -16,6 +16,7 @@ class Selector {
 	var offset = {x: 0, y: 0};
 
 	var _target:SVGElement;
+	var isResizer = false;
 
 	public function new(stage:SVGElement) {
 		this.stage = stage;
@@ -25,8 +26,22 @@ class Selector {
 		document.body.appendChild(resizeEl);
 
 		resizeEl.onmouseover = function(e) {
+			isResizer = true;
 			trace(e);
 			trace(_target);
+			trace(isResizer);
+		}
+		resizeEl.onmouseout = function(e) {
+			isResizer = false;
+			trace(e);
+			trace(_target);
+			trace(isResizer);
+		}
+		resizeEl.onmousedown = function(e) {
+			trace('resizeEl.onmousedown');
+		}
+		resizeEl.onmouseup = function(e) {
+			trace('resizeEl.onmouseup');
 		}
 
 		this.selectionEl = cast document.createElement('span');
@@ -47,6 +62,7 @@ class Selector {
 			_target = isParentAGroup(e.target);
 			if (target != null && target.isSameNode(stage) == false) {
 				// trace('${target.tagName}');
+				trace('+++++> target: ' + target);
 				if (target.tagName == 'circle') {
 					offset.x = Math.round(Std.parseFloat(target.getAttribute('cx')) - e.clientX);
 					offset.y = Math.round(Std.parseFloat(target.getAttribute('cy')) - e.clientY);
@@ -69,7 +85,7 @@ class Selector {
 		});
 
 		window.addEventListener('mousemove', function(e) {
-			if (selected != null) {
+			if (selected != null && !isResizer) {
 				var _off = Config.GRID;
 				var _x:Float = e.clientX + offset.x;
 				var _y:Float = e.clientY + offset.y;
@@ -83,6 +99,19 @@ class Selector {
 				} else {
 					selected.setAttribute('x', '${_x}');
 					selected.setAttribute('y', '${_y}');
+				}
+				updateSelection(selected);
+			}
+			if (isResizer) {
+				trace('window.onmousemove');
+				var _off = 1; // Config.GRID;
+				var _x:Float = e.clientX + offset.x;
+				var _y:Float = e.clientY + offset.y;
+				_x = Math.round((e.clientX + offset.x) / _off) * _off;
+				_y = Math.round((e.clientY + offset.y) / _off) * _off;
+				if (selected.tagName == 'rect') {
+					selected.setAttribute('width', '${_x}');
+					selected.setAttribute('height', '${_y}');
 				}
 				updateSelection(selected);
 			}

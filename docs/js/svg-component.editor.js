@@ -1,11 +1,13 @@
 (function ($global) { "use strict";
 var Config = function() { };
+Config.__name__ = true;
 var Main = function() {
 	this.HEIGHT = Config.HEIGHT;
 	this.WIDTH = Config.WIDTH;
 	$global.console.info("Svg-component-editor");
 	this.init();
 };
+Main.__name__ = true;
 Main.main = function() {
 	var app = new Main();
 };
@@ -41,17 +43,13 @@ Main.prototype = {
 			editor.addElement(element);
 		});
 		createRectangle.addEventListener("click",function() {
-			var element = window.document.createElementNS(svg_Default.NS,"rect");
-			element.setAttribute("x",_gthis.parseNumber(Math.random() * _gthis.WIDTH));
-			element.setAttribute("y",_gthis.parseNumber(Math.random() * _gthis.HEIGHT));
-			element.setAttribute("width",_gthis.parseNumber(Math.random() * 100));
-			element.setAttribute("height",_gthis.parseNumber(Math.random() * 100));
+			var element = svg_Rect.create(Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4));
 			element.style.stroke = "black";
 			element.style.fill = _gthis.randomColor();
 			editor.addElement(element);
 		});
 		btnImage.addEventListener("click",function() {
-			console.log("src/Main.hx:84:","btnImage");
+			console.log("src/Main.hx:89:","btnImage");
 			var group = svg_Group.create(Config.GRID,Config.GRID);
 			group.id = Names.GROUP_IMAGE;
 			group.appendChild(svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2));
@@ -62,7 +60,7 @@ Main.prototype = {
 			editor.addElement(group);
 		});
 		btnButton.addEventListener("click",function() {
-			console.log("src/Main.hx:98:","btnButton");
+			console.log("src/Main.hx:103:","btnButton");
 			var group = svg_Group.create(Config.GRID,Config.GRID);
 			group.id = Names.GROUP_BTN;
 			group.appendChild(svg_Rect.create(0,0,100,Config.GRID * 0.5));
@@ -143,16 +141,26 @@ Main.prototype = {
 		return "#" + Math.floor(Math.random() * 16777215).toString(16);
 	}
 };
+Math.__name__ = true;
 var Names = function() { };
+Names.__name__ = true;
+var Std = function() { };
+Std.__name__ = true;
+Std.string = function(s) {
+	return js_Boot.__string_rec(s,"");
+};
 var StringTools = function() { };
+StringTools.__name__ = true;
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
 };
 var Style = function() { };
+Style.__name__ = true;
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
 };
+haxe_iterators_ArrayIterator.__name__ = true;
 haxe_iterators_ArrayIterator.prototype = {
 	hasNext: function() {
 		return this.current < this.array.length;
@@ -161,7 +169,74 @@ haxe_iterators_ArrayIterator.prototype = {
 		return this.array[this.current++];
 	}
 };
+var js_Boot = function() { };
+js_Boot.__name__ = true;
+js_Boot.__string_rec = function(o,s) {
+	if(o == null) {
+		return "null";
+	}
+	if(s.length >= 5) {
+		return "<...>";
+	}
+	var t = typeof(o);
+	if(t == "function" && (o.__name__ || o.__ename__)) {
+		t = "object";
+	}
+	switch(t) {
+	case "function":
+		return "<function>";
+	case "object":
+		if(((o) instanceof Array)) {
+			var str = "[";
+			s += "\t";
+			var _g = 0;
+			var _g1 = o.length;
+			while(_g < _g1) {
+				var i = _g++;
+				str += (i > 0 ? "," : "") + js_Boot.__string_rec(o[i],s);
+			}
+			str += "]";
+			return str;
+		}
+		var tostr;
+		try {
+			tostr = o.toString;
+		} catch( _g ) {
+			return "???";
+		}
+		if(tostr != null && tostr != Object.toString && typeof(tostr) == "function") {
+			var s2 = o.toString();
+			if(s2 != "[object Object]") {
+				return s2;
+			}
+		}
+		var str = "{\n";
+		s += "\t";
+		var hasp = o.hasOwnProperty != null;
+		var k = null;
+		for( k in o ) {
+		if(hasp && !o.hasOwnProperty(k)) {
+			continue;
+		}
+		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
+			continue;
+		}
+		if(str.length != 2) {
+			str += ", \n";
+		}
+		str += s + k + " : " + js_Boot.__string_rec(o[k],s);
+		}
+		s = s.substring(1);
+		str += "\n" + s + "}";
+		return str;
+	case "string":
+		return o;
+	default:
+		return String(o);
+	}
+};
 var svg_Circle = function() { };
+svg_Circle.__name__ = true;
 svg_Circle.create = function(x,y,r) {
 	if(r == null) {
 		r = 100;
@@ -181,7 +256,9 @@ svg_Circle.create = function(x,y,r) {
 	return element;
 };
 var svg_Default = function() { };
+svg_Default.__name__ = true;
 var svg_Group = function() { };
+svg_Group.__name__ = true;
 svg_Group.create = function(x,y) {
 	if(y == null) {
 		y = 0;
@@ -194,6 +271,7 @@ svg_Group.create = function(x,y) {
 	return element;
 };
 var svg_Line = function() { };
+svg_Line.__name__ = true;
 svg_Line.create = function(x1,y1,x2,y2) {
 	if(y1 == null) {
 		y1 = 0;
@@ -222,6 +300,7 @@ svg_Line.vertical = function(x,y,length) {
 	return svg_Line.create(x,y,x,y + length);
 };
 var svg_Rect = function() { };
+svg_Rect.__name__ = true;
 svg_Rect.create = function(x,y,w,h) {
 	if(h == null) {
 		h = 16;
@@ -245,6 +324,7 @@ svg_Rect.create = function(x,y,w,h) {
 	return element;
 };
 var svg_Text = function() { };
+svg_Text.__name__ = true;
 svg_Text.create = function(content,x,y,w,h) {
 	if(h == null) {
 		h = 16;
@@ -271,6 +351,7 @@ var tools_Editor = function(svg) {
 	this.svg = svg;
 	this.source = null;
 };
+tools_Editor.__name__ = true;
 tools_Editor.prototype = {
 	addElement: function(element) {
 		this.svg.appendChild(element);
@@ -293,6 +374,7 @@ tools_Editor.prototype = {
 	}
 };
 var tools_Selector = function(stage) {
+	this.isResizer = false;
 	this.offset = { x : 0, y : 0};
 	this.selected = null;
 	var _gthis = this;
@@ -301,8 +383,22 @@ var tools_Selector = function(stage) {
 	this.resizeEl.className = "svg-element-resizer";
 	window.document.body.appendChild(this.resizeEl);
 	this.resizeEl.onmouseover = function(e) {
-		console.log("src/tools/Selector.hx:28:",e);
-		console.log("src/tools/Selector.hx:29:",_gthis._target);
+		_gthis.isResizer = true;
+		console.log("src/tools/Selector.hx:30:",e);
+		console.log("src/tools/Selector.hx:31:",_gthis._target);
+		console.log("src/tools/Selector.hx:32:",_gthis.isResizer);
+	};
+	this.resizeEl.onmouseout = function(e) {
+		_gthis.isResizer = false;
+		console.log("src/tools/Selector.hx:36:",e);
+		console.log("src/tools/Selector.hx:37:",_gthis._target);
+		console.log("src/tools/Selector.hx:38:",_gthis.isResizer);
+	};
+	this.resizeEl.onmousedown = function(e) {
+		console.log("src/tools/Selector.hx:41:","resizeEl.onmousedown");
+	};
+	this.resizeEl.onmouseup = function(e) {
+		console.log("src/tools/Selector.hx:44:","resizeEl.onmouseup");
 	};
 	this.selectionEl = window.document.createElement("span");
 	this.selectionEl.style.position = "absolute";
@@ -319,6 +415,7 @@ var tools_Selector = function(stage) {
 		var target = _gthis.isParentAGroup(e.target);
 		_gthis._target = _gthis.isParentAGroup(e.target);
 		if(target != null && target.isSameNode(stage) == false) {
+			console.log("src/tools/Selector.hx:65:","+++++> target: " + Std.string(target));
 			if(target.tagName == "circle") {
 				var tmp = parseFloat(target.getAttribute("cx")) - e.clientX;
 				_gthis.offset.x = Math.round(tmp);
@@ -345,7 +442,7 @@ var tools_Selector = function(stage) {
 		_gthis.selected = null;
 	});
 	window.addEventListener("mousemove",function(e) {
-		if(_gthis.selected != null) {
+		if(_gthis.selected != null && !_gthis.isResizer) {
 			var _off = Config.GRID;
 			var _x = e.clientX + _gthis.offset.x;
 			var _y = e.clientY + _gthis.offset.y;
@@ -362,8 +459,22 @@ var tools_Selector = function(stage) {
 			}
 			_gthis.updateSelection(_gthis.selected);
 		}
+		if(_gthis.isResizer) {
+			console.log("src/tools/Selector.hx:106:","window.onmousemove");
+			var _off = 1;
+			var _x = e.clientX + _gthis.offset.x;
+			var _y = e.clientY + _gthis.offset.y;
+			_x = Math.round((e.clientX + _gthis.offset.x) / _off) * _off;
+			_y = Math.round((e.clientY + _gthis.offset.y) / _off) * _off;
+			if(_gthis.selected.tagName == "rect") {
+				_gthis.selected.setAttribute("width","" + _x);
+				_gthis.selected.setAttribute("height","" + _y);
+			}
+			_gthis.updateSelection(_gthis.selected);
+		}
 	});
 };
+tools_Selector.__name__ = true;
 tools_Selector.prototype = {
 	updateSelection: function(element) {
 		if(element == null || element.isSameNode(this.stage)) {
@@ -398,11 +509,20 @@ tools_Selector.prototype = {
 var tools_Source = function(dom) {
 	this.dom = dom;
 };
+tools_Source.__name__ = true;
 tools_Source.prototype = {
 	setText: function(text) {
 		this.dom.textContent = text;
 	}
 };
+var utils_MathUtil = function() { };
+utils_MathUtil.__name__ = true;
+utils_MathUtil.getRandomInt = function(min,max) {
+	return Math.floor(Math.random() * (max - min)) + min;
+};
+String.__name__ = true;
+Array.__name__ = true;
+js_Boot.__toStr = ({ }).toString;
 Config.WIDTH = 600;
 Config.HEIGHT = 400;
 Config.GRID = Config.WIDTH / 12;
