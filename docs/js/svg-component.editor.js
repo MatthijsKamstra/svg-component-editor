@@ -363,6 +363,10 @@ var tools_Selector = function(stage) {
 			}
 			_gthis.updateSelection(_gthis.selected);
 		}
+		if(_gthis.isResizer) {
+			console.log("src/tools/Selector.hx:100:","window.onmousemove");
+			console.log("src/tools/Selector.hx:101:",_gthis.isResizer);
+		}
 	};
 };
 tools_Selector.prototype = {
@@ -378,10 +382,10 @@ tools_Selector.prototype = {
 			_gthis.isResizer = false;
 		};
 		this.resizeEl.onmousedown = function(e) {
-			console.log("src/tools/Selector.hx:132:","resizeEl.onmousedown");
+			console.log("src/tools/Selector.hx:134:","resizeEl.onmousedown");
 		};
 		this.resizeEl.onmouseup = function(e) {
-			console.log("src/tools/Selector.hx:135:","resizeEl.onmouseup");
+			console.log("src/tools/Selector.hx:137:","resizeEl.onmouseup");
 		};
 	}
 	,initSelector: function() {

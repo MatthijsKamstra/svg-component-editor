@@ -95,19 +95,21 @@ class Selector {
 				}
 				updateSelection(selected);
 			}
-			// if (isResizer) {
-			// 	trace('window.onmousemove');
-			// 	var _off = 1; // Config.GRID;
-			// 	var _x:Float = e.clientX + offset.x;
-			// 	var _y:Float = e.clientY + offset.y;
-			// 	_x = Math.round((e.clientX + offset.x) / _off) * _off;
-			// 	_y = Math.round((e.clientY + offset.y) / _off) * _off;
-			// 	if (selected.tagName == 'rect') {
-			// 		selected.setAttribute('width', '${_x}');
-			// 		selected.setAttribute('height', '${_y}');
-			// 	}
-			// 	updateSelection(selected);
-			// }
+
+			if (isResizer) {
+				trace('window.onmousemove');
+				trace(isResizer);
+				// var _off = 1; // Config.GRID;
+				// var _x:Float = e.clientX + offset.x;
+				// var _y:Float = e.clientY + offset.y;
+				// _x = Math.round((e.clientX + offset.x) / _off) * _off;
+				// _y = Math.round((e.clientY + offset.y) / _off) * _off;
+				// if (selected.tagName == 'rect') {
+				// 	selected.setAttribute('width', '${_x}');
+				// 	selected.setAttribute('height', '${_y}');
+				// }
+				// updateSelection(selected);
+			}
 		};
 	}
 
