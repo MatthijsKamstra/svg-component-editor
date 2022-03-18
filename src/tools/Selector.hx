@@ -14,6 +14,7 @@ class Selector {
 	var resizeEl:DivElement;
 	var selected:SVGElement = null;
 	var offset = {x: 0, y: 0};
+	var xoffset = {x: 0, y: 0};
 
 	var _target:SVGElement;
 	var isResizer = false;
@@ -99,17 +100,56 @@ class Selector {
 			if (isResizer) {
 				trace('window.onmousemove');
 				trace(isResizer);
+				// trace("selected: " + selected);
+				// trace("_target: " + _target);
+				// if (_target.tagName == 'rect') {
+				// 	trace('rect');
+				// }
 				// var _off = 1; // Config.GRID;
 				// var _x:Float = e.clientX + offset.x;
 				// var _y:Float = e.clientY + offset.y;
 				// _x = Math.round((e.clientX + offset.x) / _off) * _off;
 				// _y = Math.round((e.clientY + offset.y) / _off) * _off;
-				// if (selected.tagName == 'rect') {
-				// 	selected.setAttribute('width', '${_x}');
-				// 	selected.setAttribute('height', '${_y}');
-				// }
-				// updateSelection(selected);
+
+				// offset.x = Math.round(Std.parseFloat(_target.getAttribute('x')) - e.clientX);
+				// offset.y = Math.round(Std.parseFloat(_target.getAttribute('y')) - e.clientY);
+
+				if (_target.tagName == 'rect') {
+					// var _x = Math.round(Std.parseFloat(_target.getAttribute('x')));
+					// var _y = Math.round(Std.parseFloat(_target.getAttribute('y')));
+					// var _w = Math.round(Std.parseFloat(_target.getAttribute('width')));
+					// var _h = Math.round(Std.parseFloat(_target.getAttribute('height')));
+					// //
+					// // var _xx = (e.clientX + offset.x);
+					// // var _yy = (e.clientY + offset.y);
+					var clientX = Math.round(e.clientX);
+					var clientY = Math.round(e.clientY);
+					// //
+					// // var _ww = (_xx + _w);
+					// // var _hh = (_yy + _h);
+
+					// // _target.setAttribute('width', '${_x}');
+					// // _target.setAttribute('height', '${_y}');
+
+					// // offset.x = Math.round(Std.parseFloat(target.getAttribute('x')) - e.clientX);
+					// // offset.y = Math.round(Std.parseFloat(target.getAttribute('y')) - e.clientY);
+
+					// console.group('x');
+					// console.log(_target);
+					// console.log(xoffset);
+					// console.log('target x: ' + _x + ', y:  ' + _y + ', width: ' + _w + ', height: ' + _h);
+					// console.log('clientX: ' + e.clientX + ', clientY: ' + e.clientY);
+					// console.log('new w: ' + -(xoffset.x - e.clientX) + ', new h: ' + -(xoffset.y - e.clientY));
+					// // console.log('xx: ' + _xx + ', yy: ' + _yy);
+					// // console.log('new w: ' + (_ww - _xx) + ', new h: ' + (_hh - _yy));
+					// console.groupEnd();
+
+					_target.setAttribute('width', '${- Math.round(xoffset.x - clientX)}');
+					_target.setAttribute('height', '${- Math.round(xoffset.y - clientY)}');
+				}
+				updateSelection(_target);
 			}
+			// trace('x: ' + e.clientX + ', y: ' + e.clientY);
 		};
 	}
 
@@ -119,22 +159,28 @@ class Selector {
 		document.body.appendChild(resizeEl);
 
 		resizeEl.onmouseover = function(e) {
-			isResizer = true;
-			// trace(e);
-			// trace(_target);
-			// trace(isResizer);
+			if (_target == null) {
+				// isResizer = false;
+				resizeEl.classList.remove('show');
+				return;
+			}
+			// isResizer = true;
+			resizeEl.classList.add('show');
 		}
 		resizeEl.onmouseout = function(e) {
-			isResizer = false;
-			// trace(e);
-			// trace(_target);
-			// trace(isResizer);
+			// isResizer = false;
+			resizeEl.classList.remove('show');
 		}
 		resizeEl.onmousedown = function(e) {
 			trace('resizeEl.onmousedown');
+			isResizer = true;
+			xoffset.x = Math.round(e.clientX - Std.parseFloat(_target.getAttribute('width')));
+			xoffset.y = Math.round(e.clientY - Std.parseFloat(_target.getAttribute('height')));
+			trace(xoffset);
 		}
 		resizeEl.onmouseup = function(e) {
 			trace('resizeEl.onmouseup');
+			isResizer = false;
 		}
 	}
 
@@ -157,10 +203,6 @@ class Selector {
 			return;
 		}
 
-		// trace(element.parentElement.nodeName);
-		// trace(element.parentElement.nodeType);
-		// trace(element.parentElement.nodeValue);
-
 		var rect = element.getBoundingClientRect();
 
 		// selectionEl
@@ -181,9 +223,6 @@ class Selector {
 			return null;
 		}
 		if (target.nodeName == 'svg') {
-			// trace(target.parentElement.nodeName); // g
-			// target = cast target;
-			// target = cast target;
 			selected = null;
 			return null;
 		}

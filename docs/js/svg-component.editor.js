@@ -290,6 +290,7 @@ tools_Editor.prototype = {
 };
 var tools_Selector = function(stage) {
 	this.isResizer = false;
+	this.xoffset = { x : 0, y : 0};
 	this.offset = { x : 0, y : 0};
 	this.selected = null;
 	var _gthis = this;
@@ -364,8 +365,15 @@ var tools_Selector = function(stage) {
 			_gthis.updateSelection(_gthis.selected);
 		}
 		if(_gthis.isResizer) {
-			console.log("src/tools/Selector.hx:100:","window.onmousemove");
-			console.log("src/tools/Selector.hx:101:",_gthis.isResizer);
+			console.log("src/tools/Selector.hx:101:","window.onmousemove");
+			console.log("src/tools/Selector.hx:102:",_gthis.isResizer);
+			if(_gthis._target.tagName == "rect") {
+				var clientX = Math.round(e.clientX);
+				var clientY = Math.round(e.clientY);
+				_gthis._target.setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
+				_gthis._target.setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
+			}
+			_gthis.updateSelection(_gthis._target);
 		}
 	};
 };
@@ -376,16 +384,27 @@ tools_Selector.prototype = {
 		this.resizeEl.className = "svg-element-resizer";
 		window.document.body.appendChild(this.resizeEl);
 		this.resizeEl.onmouseover = function(e) {
-			_gthis.isResizer = true;
+			if(_gthis._target == null) {
+				_gthis.resizeEl.classList.remove("show");
+				return;
+			}
+			_gthis.resizeEl.classList.add("show");
 		};
 		this.resizeEl.onmouseout = function(e) {
-			_gthis.isResizer = false;
+			_gthis.resizeEl.classList.remove("show");
 		};
 		this.resizeEl.onmousedown = function(e) {
-			console.log("src/tools/Selector.hx:134:","resizeEl.onmousedown");
+			console.log("src/tools/Selector.hx:175:","resizeEl.onmousedown");
+			_gthis.isResizer = true;
+			var tmp = e.clientX - parseFloat(_gthis._target.getAttribute("width"));
+			_gthis.xoffset.x = Math.round(tmp);
+			var tmp = e.clientY - parseFloat(_gthis._target.getAttribute("height"));
+			_gthis.xoffset.y = Math.round(tmp);
+			console.log("src/tools/Selector.hx:179:",_gthis.xoffset);
 		};
 		this.resizeEl.onmouseup = function(e) {
-			console.log("src/tools/Selector.hx:137:","resizeEl.onmouseup");
+			console.log("src/tools/Selector.hx:182:","resizeEl.onmouseup");
+			_gthis.isResizer = false;
 		};
 	}
 	,initSelector: function() {
