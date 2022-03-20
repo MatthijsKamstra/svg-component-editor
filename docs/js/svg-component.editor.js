@@ -289,12 +289,17 @@ tools_Editor.prototype = {
 	}
 };
 var tools_Selector = function(stage) {
+	this._off = 1.0;
+	this.isSnap2Grid = true;
 	this.isResizer = false;
 	this.xoffset = { x : 0, y : 0};
 	this.offset = { x : 0, y : 0};
 	this.selected = null;
 	var _gthis = this;
 	this.stage = stage;
+	if(this.isSnap2Grid) {
+		this._off = Config.GRID;
+	}
 	this.initResizer();
 	this.initSelector();
 	stage.onmouseover = function(e) {
@@ -330,11 +335,10 @@ var tools_Selector = function(stage) {
 	};
 	stage.onmouseup = function(e) {
 		if(_gthis.selected != null && !_gthis.isResizer) {
-			var _off = Config.GRID;
 			var _x = e.clientX + _gthis.offset.x;
 			var _y = e.clientY + _gthis.offset.y;
-			_x = Math.round((e.clientX + _gthis.offset.x) / _off) * _off;
-			_y = Math.round((e.clientY + _gthis.offset.y) / _off) * _off;
+			_x = Math.round((e.clientX + _gthis.offset.x) / _gthis._off) * _gthis._off;
+			_y = Math.round((e.clientY + _gthis.offset.y) / _gthis._off) * _gthis._off;
 			if(_gthis.selected.tagName == "circle") {
 				_gthis.selected.setAttribute("cx","" + _x);
 				_gthis.selected.setAttribute("cy","" + _y);
@@ -350,7 +354,6 @@ var tools_Selector = function(stage) {
 	};
 	window.onmousemove = function(e) {
 		if(_gthis.selected != null && !_gthis.isResizer) {
-			var _off = Config.GRID;
 			var _x = e.clientX + _gthis.offset.x;
 			var _y = e.clientY + _gthis.offset.y;
 			if(_gthis.selected.tagName == "circle") {
@@ -365,8 +368,8 @@ var tools_Selector = function(stage) {
 			_gthis.updateSelection(_gthis.selected);
 		}
 		if(_gthis.isResizer) {
-			console.log("src/tools/Selector.hx:101:","window.onmousemove");
-			console.log("src/tools/Selector.hx:102:",_gthis.isResizer);
+			console.log("src/tools/Selector.hx:105:","window.onmousemove");
+			console.log("src/tools/Selector.hx:106:",_gthis.isResizer);
 			if(_gthis._target.tagName == "rect") {
 				var clientX = Math.round(e.clientX);
 				var clientY = Math.round(e.clientY);
@@ -394,16 +397,23 @@ tools_Selector.prototype = {
 			_gthis.resizeEl.classList.remove("show");
 		};
 		this.resizeEl.onmousedown = function(e) {
-			console.log("src/tools/Selector.hx:175:","resizeEl.onmousedown");
+			console.log("src/tools/Selector.hx:179:","resizeEl.onmousedown");
 			_gthis.isResizer = true;
 			var tmp = e.clientX - parseFloat(_gthis._target.getAttribute("width"));
 			_gthis.xoffset.x = Math.round(tmp);
 			var tmp = e.clientY - parseFloat(_gthis._target.getAttribute("height"));
 			_gthis.xoffset.y = Math.round(tmp);
-			console.log("src/tools/Selector.hx:179:",_gthis.xoffset);
+			console.log("src/tools/Selector.hx:183:",_gthis.xoffset);
 		};
 		this.resizeEl.onmouseup = function(e) {
-			console.log("src/tools/Selector.hx:182:","resizeEl.onmouseup");
+			console.log("src/tools/Selector.hx:186:","resizeEl.onmouseup");
+			if(_gthis.isResizer) {
+				var _w = parseFloat(_gthis._target.getAttribute("width"));
+				var _h = parseFloat(_gthis._target.getAttribute("height"));
+				_gthis._target.setAttribute("width","" + Math.round(_w / _gthis._off) * _gthis._off);
+				_gthis._target.setAttribute("height","" + Math.round(_h / _gthis._off) * _gthis._off);
+				_gthis.updateSelection(_gthis._target);
+			}
 			_gthis.isResizer = false;
 		};
 	}

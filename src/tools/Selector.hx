@@ -19,8 +19,15 @@ class Selector {
 	var _target:SVGElement;
 	var isResizer = false;
 
+	var isSnap2Grid = true;
+	var _off = 1.0;
+
 	public function new(stage:SVGElement) {
 		this.stage = stage;
+
+		if (isSnap2Grid) {
+			_off = Config.GRID;
+		}
 
 		initResizer();
 		initSelector();
@@ -56,9 +63,7 @@ class Selector {
 		};
 
 		stage.onmouseup = function(e) {
-			// set on grid
 			if (selected != null && !isResizer) {
-				var _off = Config.GRID;
 				var _x:Float = e.clientX + offset.x;
 				var _y:Float = e.clientY + offset.y;
 				_x = Math.round((e.clientX + offset.x) / _off) * _off;
@@ -80,7 +85,6 @@ class Selector {
 		window.onmousemove = function(e) {
 			// move outside grid
 			if (selected != null && !isResizer) {
-				var _off = Config.GRID;
 				var _x:Float = e.clientX + offset.x;
 				var _y:Float = e.clientY + offset.y;
 				// _x = Math.round((e.clientX + offset.x) / _off) * _off;
@@ -180,6 +184,13 @@ class Selector {
 		}
 		resizeEl.onmouseup = function(e) {
 			trace('resizeEl.onmouseup');
+			if (isResizer) {
+				var _w = Std.parseFloat(_target.getAttribute('width'));
+				var _h = Std.parseFloat(_target.getAttribute('height'));
+				_target.setAttribute('width', '${Math.round(_w / _off) * _off}');
+				_target.setAttribute('height', '${Math.round(_h / _off) * _off}');
+				updateSelection(_target);
+			}
 			isResizer = false;
 		}
 	}
