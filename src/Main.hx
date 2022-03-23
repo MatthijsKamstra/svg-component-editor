@@ -1,5 +1,7 @@
 package;
 
+import shape.SVGButton;
+import shape.SVGImage;
 import Names.*;
 import js.Browser.*;
 import js.html.*;
@@ -46,6 +48,7 @@ class Main {
 
 		// elements
 		var stage:SVGElement = cast document.getElementById('stage');
+		var stageGrid:SVGElement = cast document.getElementById('js-grid');
 		var textarea:TextAreaElement = cast document.getElementById('textarea');
 
 		// here we go
@@ -54,7 +57,7 @@ class Main {
 		var selector = new Selector(stage);
 
 		// setup grid
-		setupGrid(stage, editor);
+		setupGrid(stageGrid);
 		//
 		wireframe.addEventListener('change', function() {
 			stage.classList.toggle('wireframe');
@@ -87,29 +90,13 @@ class Main {
 
 		btnImage.addEventListener('click', function() {
 			trace("btnImage");
-			var group = Group.create(Config.GRID, Config.GRID);
-			group.id = GROUP_IMAGE;
-			group.appendChild(svg.Rect.create(0, 0, Config.GRID * 2, Config.GRID * 2));
-
-			var text = svg.Text.create('Image', Config.GRID * 1, Config.GRID * 1);
-			text.setAttribute('text-anchor', "middle");
-			text.setAttribute('dominant-baseline', "central");
-			group.appendChild(text);
-
+			var group = SVGImage.create(Config.GRID, Config.GRID);
 			editor.addElement(group);
 		});
 
 		btnButton.addEventListener('click', function() {
 			trace("btnButton");
-			var group = Group.create(Config.GRID, Config.GRID);
-			group.id = GROUP_BTN;
-			group.appendChild(svg.Rect.create(0, 0, 100, Config.GRID * 0.5));
-
-			var text = svg.Text.create('Submit', 100 * 0.5, Config.GRID * 0.25);
-			text.setAttribute('text-anchor', "middle");
-			text.setAttribute('dominant-baseline', "central");
-			group.appendChild(text);
-
+			var group = SVGButton.create(Config.GRID, Config.GRID);
 			editor.addElement(group);
 		});
 
@@ -166,7 +153,7 @@ class Main {
 	}
 
 	// setup grid
-	function setupGrid(stage:SVGElement, editor) {
+	function setupGrid(stage:SVGElement) {
 		var group = Group.create(0, 0);
 		group.id = GROUP_GRID;
 		group.classList.add(Style.IGNORE);
@@ -181,7 +168,8 @@ class Main {
 				group.appendChild(circle);
 			}
 		}
-		editor.addElement(group);
+		// editor.addElement(group);
+		stage.appendChild(group);
 	}
 
 	function parseNumber(value) {

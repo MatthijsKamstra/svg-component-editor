@@ -45,8 +45,22 @@
 			width: 600px;
 		}
 
-		#stage {
+		.svg-wrapper {
+			/* border: 0px solid pink; */
+			display: block;
+			position: relative;
+		}
+
+		#js-grid {
+			position: absolute;
+			z-index: -9999;
+			top: 0;
+			left: 0;
 			background: #fff;
+		}
+
+		#stage {
+			/* position: relative; */
 		}
 
 		#stage.wireframe * {
@@ -138,7 +152,10 @@
 
 			<div class="col-10">
 				<span id="content">
-					<svg id="stage" width="600" height="400" viewBox="0 0 600 400"></svg>
+					<div class="svg-wrapper">
+						<svg id="stage" width="600" height="400" viewBox="0 0 600 400"></svg>
+						<svg id="js-grid" width="600" height="400" viewBox="0 0 600 400"></svg>
+					</div>
 
 					<div class="mb-3">
 						<label for="textarea" class="form-label">Svg code</label>

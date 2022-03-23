@@ -29,13 +29,13 @@ class Selector {
 			_off = Config.GRID;
 		}
 
-		initResizer();
-		initSelector();
+		initResizerElement();
+		initSelectorElement();
 
 		stage.onmouseover = function(e) {
 			var target:SVGElement = isParentAGroup(e.target);
 			_target = isParentAGroup(e.target);
-			updateSelection(target);
+			updateSelectionElement(target);
 		};
 
 		stage.onmousedown = function(e) {
@@ -77,7 +77,7 @@ class Selector {
 					selected.setAttribute('x', '${_x}');
 					selected.setAttribute('y', '${_y}');
 				}
-				updateSelection(selected);
+				updateSelectionElement(selected);
 			}
 			selected = null;
 		};
@@ -98,10 +98,15 @@ class Selector {
 					selected.setAttribute('x', '${_x}');
 					selected.setAttribute('y', '${_y}');
 				}
-				updateSelection(selected);
+				updateSelectionElement(selected);
 			}
 
 			if (isResizer) {
+				if (_target == null) {
+					isResizer = false;
+					return;
+				}
+
 				trace('window.onmousemove');
 				trace(isResizer);
 				// trace("selected: " + selected);
@@ -151,13 +156,13 @@ class Selector {
 					_target.setAttribute('width', '${- Math.round(xoffset.x - clientX)}');
 					_target.setAttribute('height', '${- Math.round(xoffset.y - clientY)}');
 				}
-				updateSelection(_target);
+				updateSelectionElement(_target);
 			}
 			// trace('x: ' + e.clientX + ', y: ' + e.clientY);
 		};
 	}
 
-	function initResizer() {
+	function initResizerElement() {
 		this.resizeEl = cast document.createDivElement();
 		resizeEl.className = 'svg-element-resizer';
 		document.body.appendChild(resizeEl);
@@ -189,13 +194,13 @@ class Selector {
 				var _h = Std.parseFloat(_target.getAttribute('height'));
 				_target.setAttribute('width', '${Math.round(_w / _off) * _off}');
 				_target.setAttribute('height', '${Math.round(_h / _off) * _off}');
-				updateSelection(_target);
+				updateSelectionElement(_target);
 			}
 			isResizer = false;
 		}
 	}
 
-	function initSelector() {
+	function initSelectorElement() {
 		this.selectionEl = cast document.createElement('span');
 		selectionEl.style.position = 'absolute';
 		selectionEl.style.display = 'block';
@@ -204,7 +209,7 @@ class Selector {
 		document.body.appendChild(selectionEl);
 	}
 
-	function updateSelection(element:SVGElement) {
+	function updateSelectionElement(element:SVGElement) {
 		if (element == null || element.isSameNode(stage)) {
 			selectionEl.style.display = 'none';
 			return;
