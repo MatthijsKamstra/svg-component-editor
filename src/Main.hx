@@ -49,6 +49,7 @@ class Main {
 		var clear:ButtonElement = cast document.getElementById('clear');
 		//
 		var btnConvert:ButtonElement = cast document.getElementById('js-svg2html');
+		var btnTestConvert:ButtonElement = cast document.getElementById('js-svg2html-test');
 
 		// elements
 		var stage:SVGElement = cast document.getElementById('stage');
@@ -129,6 +130,10 @@ class Main {
 		};
 
 		btnConvert.onclick = function() {
+			var c = new convert.ConvertSvg2Html(stage);
+		};
+
+		btnTestConvert.onclick = function() {
 			trace('add dummy');
 			editor.addElement(new SVGRectangle(Config.GRID * 6, Config.GRID, Config.GRID * 3).group);
 			editor.addElement(new SVGImage(Config.GRID * 9, Config.GRID, Config.GRID * 3).group);

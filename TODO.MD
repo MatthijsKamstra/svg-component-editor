@@ -9,7 +9,7 @@
 - [ ] resize better
 - [ ] grid checkbox
 - [ ] mouse icons update with state
-- [ ] export to html
+- [x] export to html
 - [ ] export to twig
 - [ ] export to react
 

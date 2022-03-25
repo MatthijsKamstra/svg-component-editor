@@ -28,6 +28,7 @@ Main.prototype = {
 		var save = window.document.getElementById("save");
 		var clear = window.document.getElementById("clear");
 		var btnConvert = window.document.getElementById("js-svg2html");
+		var btnTestConvert = window.document.getElementById("js-svg2html-test");
 		var stage = window.document.getElementById("stage");
 		var stageGrid = window.document.getElementById("js-grid");
 		var textarea = window.document.getElementById("textarea");
@@ -59,12 +60,15 @@ Main.prototype = {
 			editor.addElement(elGroup.get_group());
 		};
 		btnConvert.onclick = function() {
-			console.log("src/Main.hx:132:","add dummy");
+			var c = new convert_ConvertSvg2Html(stage);
+		};
+		btnTestConvert.onclick = function() {
+			console.log("src/Main.hx:137:","add dummy");
 			editor.addElement(new shape_SVGRectangle(Config.GRID * 6,Config.GRID,Config.GRID * 3).get_group());
 			editor.addElement(new shape_SVGImage(Config.GRID * 9,Config.GRID,Config.GRID * 3).get_group());
 			editor.addElement(new shape_SVGParagraph(Config.GRID * 0,Config.GRID,Config.GRID * 6).get_group());
 			editor.addElement(new shape_SVGHeading(Config.GRID * 0,Config.GRID,Config.GRID * 6).get_group());
-			console.log("src/Main.hx:137:","convert");
+			console.log("src/Main.hx:142:","convert");
 			var c = new convert_ConvertSvg2Html(stage);
 		};
 		var form = window.document.createElement("form");
@@ -225,16 +229,12 @@ var convert_ConvertSvg2Html = function(stage) {
 		++_g;
 		var obj = Reflect.field(structureObj,i);
 		html += "  <div class=\"row\">\n";
-		$global.console.log("---> ");
-		$global.console.log(i);
-		$global.console.log(obj);
 		var _g2 = 0;
 		var _g3 = Reflect.fields(obj);
 		while(_g2 < _g3.length) {
 			var j = _g3[_g2];
 			++_g2;
 			var arr = Reflect.field(obj,j);
-			$global.console.log(arr);
 			var __obj = arr[0];
 			html += "    <div class=\"col-" + __obj.width / Config.GRID + "\">";
 			var _g4 = 0;
@@ -242,7 +242,6 @@ var convert_ConvertSvg2Html = function(stage) {
 			while(_g4 < _g5) {
 				var i1 = _g4++;
 				var obj1 = arr[i1];
-				console.log("src/convert/ConvertSvg2Html.hx:84:",obj1);
 				html += "" + this.convert(obj1);
 			}
 			html += "</div>";

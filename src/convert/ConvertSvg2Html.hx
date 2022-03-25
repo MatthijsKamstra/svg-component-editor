@@ -71,17 +71,17 @@ class ConvertSvg2Html {
 		for (i in Reflect.fields(structureObj)) {
 			var obj = Reflect.field(structureObj, i);
 			html += '  <div class="row">\n';
-			console.log('---> ');
-			console.log(i);
-			console.log(obj);
+			// console.log('---> ');
+			// console.log(i);
+			// console.log(obj);
 			for (j in Reflect.fields(obj)) {
 				var arr = Reflect.field(obj, j);
-				console.log(arr);
+				// console.log(arr);
 				var __obj:SVGObject = arr[0];
 				html += '    <div class="col-${__obj.width / Config.GRID}">';
 				for (i in 0...arr.length) {
 					var obj = arr[i];
-					trace(obj);
+					// trace(obj);
 					html += '${convert(obj)}';
 				}
 				html += '</div>';
