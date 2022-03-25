@@ -5,8 +5,8 @@ import svg.Group;
 import Names.*;
 
 class SVGHeading extends SVGCombo {
-	public function new(el) {
-		super(el);
+	public function new(x, y, ?w, ?h) {
+		super(x, y, w, h);
 	}
 
 	override public function update() {
@@ -16,7 +16,7 @@ class SVGHeading extends SVGCombo {
 		text.setAttribute('y', '${height / 2}');
 	}
 
-	public static function create(x, y) {
+	override public function create(x, y, w, h) {
 		var _w = Config.GRID * 4;
 		var _h = Config.GRID * 0.5;
 		var _padX = Config.GRID * 0.25;
@@ -28,24 +28,24 @@ class SVGHeading extends SVGCombo {
 		group.dataset.id = GROUP_HEADING;
 
 		// rectangle
-		var rect = svg.Rect.create(0, 0, _w, _h);
+		var rect = svg.Rect.create(0, 0, w, _h);
 		rect.dataset.bg = Names.GROUP_EL_BG;
 		group.appendChild(rect);
 
 		// line
-		var line = new svg.Line(_padX, _padY, (_w - _padX), _padY);
+		var line = new svg.Line(_padX, _padY, (w - _padX), _padY);
 		line.stroke = ('#e5e3e2');
 		line.strokeWidth = _h * .6;
 		line.strokeLinecap = 'round';
 		group.appendChild(line.child());
 
 		// text
-		var text = svg.Text.create('Heading', _w / 2, _h / 2);
+		var text = svg.Text.create('Heading', w / 2, _h / 2);
 		text.dataset.centered = Names.GROUP_EL_CENTERED;
 		text.setAttribute('text-anchor', "middle");
 		text.setAttribute('dominant-baseline', "central");
 		group.appendChild(text);
 
-		return (group);
+		this.group = group;
 	}
 }

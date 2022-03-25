@@ -4,14 +4,15 @@ import svg.Group;
 import Names.*;
 
 class SVGButton extends SVGCombo {
-	public function new(el) {
-		super(el);
+	public function new(x, y, ?w, ?h) {
+		super(x, y, w, h);
+
 		var text = cast element.querySelector('[data-centered~="${Names.GROUP_EL_CENTERED}"]');
 		text.setAttribute('x', '${width / 2}');
 		text.setAttribute('y', '${height / 2}');
 	}
 
-	public static function create(x, y) {
+	override public function create(x, y, w, h) {
 		var group = Group.create(x, y);
 		group.dataset.type = GROUP_TYPE;
 		group.dataset.id = GROUP_BTN;
@@ -28,6 +29,6 @@ class SVGButton extends SVGCombo {
 		text.setAttribute('dominant-baseline', "central");
 		group.appendChild(text);
 
-		return (group);
+		this.group = group;
 	}
 }

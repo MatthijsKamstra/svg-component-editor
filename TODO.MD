@@ -2,7 +2,7 @@
 
 - [x] grid and stage in 2
 - [x] resize rect
-- [ ] resize combination (image, button)
+- [x] resize combination (image, button)
 - [x] class for combination elements (image, button)
 - [ ] grid and stage in 2
 - [ ] drag outside fix

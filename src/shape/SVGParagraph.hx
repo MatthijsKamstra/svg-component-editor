@@ -5,8 +5,8 @@ import svg.Group;
 import Names.*;
 
 class SVGParagraph extends SVGCombo {
-	public function new(el) {
-		super(el);
+	public function new(x, y, ?w, ?h) {
+		super(x, y, w, h);
 	}
 
 	override public function update() {
@@ -45,7 +45,7 @@ class SVGParagraph extends SVGCombo {
 		return gr.element;
 	}
 
-	public static function create(x, y) {
+	override public function create(x, y, w, h) {
 		var _w = Config.GRID * 4;
 		var _h = Config.GRID * 2;
 		var _padX = Config.GRID * 0.25;
@@ -57,18 +57,18 @@ class SVGParagraph extends SVGCombo {
 		group.dataset.id = GROUP_PARAGRAPH;
 
 		// rectangle
-		var rect = svg.Rect.create(0, 0, _w, _h);
+		var rect = svg.Rect.create(0, 0, w, h);
 		rect.dataset.bg = Names.GROUP_EL_BG;
 		group.appendChild(rect);
 
 		// line
-		var total = Math.floor((_w / _padX) / 2);
+		var total = Math.floor(h / _padX);
 		var gr = new svg.Group();
 		gr.dataType = 'foo';
 		gr.element.classList.add(Style.IGNORE);
 		for (i in 1...total) {
 			var __p = (_padX * i);
-			var line = new svg.Line(_padX, __p, (_w - _padX), __p);
+			var line = new svg.Line(_padX, __p, (w - _padX), __p);
 			line.stroke = ('#e5e3e2');
 			line.strokeWidth = 8;
 			line.strokeLinecap = 'round';
@@ -77,12 +77,12 @@ class SVGParagraph extends SVGCombo {
 		group.appendChild(gr.element);
 
 		// text
-		var text = svg.Text.create('Paragraph', _w / 2, _h / 2);
+		var text = svg.Text.create('Paragraph', w / 2, h / 2);
 		text.dataset.centered = Names.GROUP_EL_CENTERED;
 		text.setAttribute('text-anchor', "middle");
 		text.setAttribute('dominant-baseline', "central");
 		group.appendChild(text);
 
-		return (group);
+		this.group = group;
 	}
 }

@@ -1,19 +1,16 @@
 package;
 
-import shape.SVGHeading;
-import utils.ColorUtil;
-import shape.SVGRectangle;
-import shape.SVGButton;
-import shape.SVGImage;
-import shape.SVGParagraph;
 import Names.*;
 import js.Browser.*;
 import js.html.*;
 import js.html.svg.SVGElement;
-import svg.Default.NS;
+import shape.SVGButton;
+import shape.SVGHeading;
+import shape.SVGImage;
+import shape.SVGParagraph;
+import shape.SVGRectangle;
 import svg.Group;
 import tools.*;
-import utils.MathUtil;
 
 /**
  * @author Matthijs Kamstra aka [mck]
@@ -36,9 +33,9 @@ class Main {
 		var wireframe:InputElement = cast document.getElementById('wireframe');
 
 		// create
-		var createCircle:ButtonElement = cast document.getElementById('createCircle');
-		var createRectangle:ButtonElement = cast document.getElementById('createRectangle');
-		var createText:ButtonElement = cast document.getElementById('createText');
+		// var createCircle:ButtonElement = cast document.getElementById('createCircle');
+		// var createRectangle:ButtonElement = cast document.getElementById('createRectangle');
+		// var createText:ButtonElement = cast document.getElementById('createText');
 		//
 		var btnHeading:ButtonElement = cast document.getElementById("js-createHeading");
 		var btnParagraph:ButtonElement = cast document.getElementById("js-createParagraph");
@@ -50,6 +47,8 @@ class Main {
 		var load:ButtonElement = cast document.getElementById('load');
 		var save:ButtonElement = cast document.getElementById('save');
 		var clear:ButtonElement = cast document.getElementById('clear');
+		//
+		var btnConvert:ButtonElement = cast document.getElementById('js-svg2html');
 
 		// elements
 		var stage:SVGElement = cast document.getElementById('stage');
@@ -68,64 +67,75 @@ class Main {
 			stage.classList.toggle('wireframe');
 		});
 
-		createCircle.addEventListener('click', function() {
-			var element = document.createElementNS(NS, 'circle');
-			element.setAttribute('cx', parseNumber(untyped Math.random() * WIDTH));
-			element.setAttribute('cy', parseNumber(untyped Math.random() * HEIGHT));
-			element.setAttribute('r', parseNumber(untyped Math.random() * 100));
-			element.style.stroke = 'black';
-			element.style.fill = ColorUtil.randomColor();
-			editor.addElement(element);
-		});
+		// createCircle.addEventListener('click', function() {
+		// 	var element = document.createElementNS(NS, 'circle');
+		// 	element.setAttribute('cx', parseNumber(untyped Math.random() * WIDTH));
+		// 	element.setAttribute('cy', parseNumber(untyped Math.random() * HEIGHT));
+		// 	element.setAttribute('r', parseNumber(untyped Math.random() * 100));
+		// 	element.style.stroke = 'black';
+		// 	element.style.fill = ColorUtil.randomColor();
+		// 	editor.addElement(element);
+		// });
 
-		createRectangle.addEventListener('click', function() {
-			// var element = document.createElementNS(NS, 'rect');
-			// element.setAttribute('x', parseNumber(untyped Math.random() * WIDTH));
-			// element.setAttribute('y', parseNumber(untyped Math.random() * HEIGHT));
-			// element.setAttribute('width', parseNumber(untyped Math.random() * 100));
-			// element.setAttribute('height', parseNumber(untyped Math.random() * 100));
-			// element.style.stroke = 'black';
-			// element.style.fill = randomColor();
-			var element = svg.Rect.create(Config.GRID * MathUtil.getRandomInt(1, 4), Config.GRID * MathUtil.getRandomInt(1, 4),
-				Config.GRID * MathUtil.getRandomInt(1, 4), Config.GRID * MathUtil.getRandomInt(1, 4));
-			element.style.stroke = 'black';
-			element.style.fill = ColorUtil.randomColor();
-			editor.addElement(element);
-		});
+		// createRectangle.addEventListener('click', function() {
+		// 	// var element = document.createElementNS(NS, 'rect');
+		// 	// element.setAttribute('x', parseNumber(untyped Math.random() * WIDTH));
+		// 	// element.setAttribute('y', parseNumber(untyped Math.random() * HEIGHT));
+		// 	// element.setAttribute('width', parseNumber(untyped Math.random() * 100));
+		// 	// element.setAttribute('height', parseNumber(untyped Math.random() * 100));
+		// 	// element.style.stroke = 'black';
+		// 	// element.style.fill = randomColor();
+		// 	var element = svg.new Rect(Config.GRID * MathUtil.getRandomInt(1, 4), Config.GRID * MathUtil.getRandomInt(1, 4),
+		// 		Config.GRID * MathUtil.getRandomInt(1, 4), Config.GRID * MathUtil.getRandomInt(1, 4));
+		// 	element.style.stroke = 'black';
+		// 	element.style.fill = ColorUtil.randomColor();
+		// 	editor.addElement(element);
+		// });
 
-		createText.addEventListener('click', function() {
-			var element = document.createElementNS(NS, 'text');
-			element.setAttribute('x', parseNumber(untyped Math.random() * WIDTH));
-			element.setAttribute('y', parseNumber(untyped Math.random() * HEIGHT));
-			element.setAttribute('font-size', '30px');
-			element.style.stroke = 'black';
-			element.style.fill = ColorUtil.randomColor();
-			element.textContent = 'Hello World';
-			editor.addElement(element);
-		});
+		// createText.addEventListener('click', function() {
+		// 	var element = document.createElementNS(NS, 'text');
+		// 	element.setAttribute('x', parseNumber(untyped Math.random() * WIDTH));
+		// 	element.setAttribute('y', parseNumber(untyped Math.random() * HEIGHT));
+		// 	element.setAttribute('font-size', '30px');
+		// 	element.style.stroke = 'black';
+		// 	element.style.fill = ColorUtil.randomColor();
+		// 	element.textContent = 'Hello World';
+		// 	editor.addElement(element);
+		// });
 
 		btnRect.onclick = function() {
-			var group = SVGRectangle.create(Config.GRID, Config.GRID);
-			editor.addElement(group);
+			var elGroup = new SVGRectangle(Config.GRID, Config.GRID);
+			editor.addElement(elGroup.group);
 		};
 
 		btnImage.onclick = function() {
-			var group = SVGImage.create(Config.GRID, Config.GRID);
-			editor.addElement(group);
+			var elGroup = new SVGImage(Config.GRID, Config.GRID);
+			editor.addElement(elGroup.group);
 		};
 
 		btnButton.onclick = function() {
-			var group = SVGButton.create(Config.GRID, Config.GRID);
-			editor.addElement(group);
+			var elGroup = new SVGButton(Config.GRID, Config.GRID);
+			editor.addElement(elGroup.group);
 		};
 
 		btnHeading.onclick = function() {
-			var group = SVGHeading.create(Config.GRID, Config.GRID);
-			editor.addElement(group);
+			var elGroup = new SVGHeading(Config.GRID, Config.GRID);
+			editor.addElement(elGroup.group);
 		};
+
 		btnParagraph.onclick = function() {
-			var group = SVGParagraph.create(Config.GRID, Config.GRID);
-			editor.addElement(group);
+			var elGroup = new SVGParagraph(Config.GRID, Config.GRID);
+			editor.addElement(elGroup.group);
+		};
+
+		btnConvert.onclick = function() {
+			trace('add dummy');
+			editor.addElement(new SVGRectangle(Config.GRID * 6, Config.GRID, Config.GRID * 3).group);
+			editor.addElement(new SVGImage(Config.GRID * 9, Config.GRID, Config.GRID * 3).group);
+			editor.addElement(new SVGParagraph(Config.GRID * 0, Config.GRID, Config.GRID * 6).group);
+			editor.addElement(new SVGHeading(Config.GRID * 0, Config.GRID, Config.GRID * 6).group);
+			trace('convert');
+			var c = new convert.ConvertSvg2Html(stage);
 		};
 
 		// LOAD

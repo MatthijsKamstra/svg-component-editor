@@ -17,12 +17,8 @@ Main.main = function() {
 };
 Main.prototype = {
 	init: function() {
-		var _gthis = this;
 		var title = window.document.getElementById("title");
 		var wireframe = window.document.getElementById("wireframe");
-		var createCircle = window.document.getElementById("createCircle");
-		var createRectangle = window.document.getElementById("createRectangle");
-		var createText = window.document.getElementById("createText");
 		var btnHeading = window.document.getElementById("js-createHeading");
 		var btnParagraph = window.document.getElementById("js-createParagraph");
 		var btnRect = window.document.getElementById("js-createRectangle");
@@ -31,6 +27,7 @@ Main.prototype = {
 		var load = window.document.getElementById("load");
 		var save = window.document.getElementById("save");
 		var clear = window.document.getElementById("clear");
+		var btnConvert = window.document.getElementById("js-svg2html");
 		var stage = window.document.getElementById("stage");
 		var stageGrid = window.document.getElementById("js-grid");
 		var textarea = window.document.getElementById("textarea");
@@ -41,50 +38,34 @@ Main.prototype = {
 		wireframe.addEventListener("change",function() {
 			stage.classList.toggle("wireframe");
 		});
-		createCircle.addEventListener("click",function() {
-			var element = window.document.createElementNS(svg_Default.NS,"circle");
-			element.setAttribute("cx",_gthis.parseNumber(Math.random() * _gthis.WIDTH));
-			element.setAttribute("cy",_gthis.parseNumber(Math.random() * _gthis.HEIGHT));
-			element.setAttribute("r",_gthis.parseNumber(Math.random() * 100));
-			element.style.stroke = "black";
-			element.style.fill = utils_ColorUtil.randomColor();
-			editor.addElement(element);
-		});
-		createRectangle.addEventListener("click",function() {
-			var element = svg_Rect.create(Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4));
-			element.style.stroke = "black";
-			element.style.fill = utils_ColorUtil.randomColor();
-			editor.addElement(element);
-		});
-		createText.addEventListener("click",function() {
-			var element = window.document.createElementNS(svg_Default.NS,"text");
-			element.setAttribute("x",_gthis.parseNumber(Math.random() * _gthis.WIDTH));
-			element.setAttribute("y",_gthis.parseNumber(Math.random() * _gthis.HEIGHT));
-			element.setAttribute("font-size","30px");
-			element.style.stroke = "black";
-			element.style.fill = utils_ColorUtil.randomColor();
-			element.textContent = "Hello World";
-			editor.addElement(element);
-		});
 		btnRect.onclick = function() {
-			var group = shape_SVGRectangle.create(Config.GRID,Config.GRID);
-			editor.addElement(group);
+			var elGroup = new shape_SVGRectangle(Config.GRID,Config.GRID);
+			editor.addElement(elGroup.get_group());
 		};
 		btnImage.onclick = function() {
-			var group = shape_SVGImage.create(Config.GRID,Config.GRID);
-			editor.addElement(group);
+			var elGroup = new shape_SVGImage(Config.GRID,Config.GRID);
+			editor.addElement(elGroup.get_group());
 		};
 		btnButton.onclick = function() {
-			var group = shape_SVGButton.create(Config.GRID,Config.GRID);
-			editor.addElement(group);
+			var elGroup = new shape_SVGButton(Config.GRID,Config.GRID);
+			editor.addElement(elGroup.get_group());
 		};
 		btnHeading.onclick = function() {
-			var group = shape_SVGHeading.create(Config.GRID,Config.GRID);
-			editor.addElement(group);
+			var elGroup = new shape_SVGHeading(Config.GRID,Config.GRID);
+			editor.addElement(elGroup.get_group());
 		};
 		btnParagraph.onclick = function() {
-			var group = shape_SVGParagraph.create(Config.GRID,Config.GRID);
-			editor.addElement(group);
+			var elGroup = new shape_SVGParagraph(Config.GRID,Config.GRID);
+			editor.addElement(elGroup.get_group());
+		};
+		btnConvert.onclick = function() {
+			console.log("src/Main.hx:132:","add dummy");
+			editor.addElement(new shape_SVGRectangle(Config.GRID * 6,Config.GRID,Config.GRID * 3).get_group());
+			editor.addElement(new shape_SVGImage(Config.GRID * 9,Config.GRID,Config.GRID * 3).get_group());
+			editor.addElement(new shape_SVGParagraph(Config.GRID * 0,Config.GRID,Config.GRID * 6).get_group());
+			editor.addElement(new shape_SVGHeading(Config.GRID * 0,Config.GRID,Config.GRID * 6).get_group());
+			console.log("src/Main.hx:137:","convert");
+			var c = new convert_ConvertSvg2Html(stage);
 		};
 		var form = window.document.createElement("form");
 		form.style.display = "none";
@@ -140,15 +121,160 @@ Main.prototype = {
 		}
 		stage.appendChild(group);
 	}
-	,parseNumber: function(value) {
-		return parseFloat(value.toFixed(2));
+};
+var Reflect = function() { };
+Reflect.field = function(o,field) {
+	try {
+		return o[field];
+	} catch( _g ) {
+		return null;
 	}
+};
+Reflect.getProperty = function(o,field) {
+	var tmp;
+	if(o == null) {
+		return null;
+	} else {
+		var tmp1;
+		if(o.__properties__) {
+			tmp = o.__properties__["get_" + field];
+			tmp1 = tmp;
+		} else {
+			tmp1 = false;
+		}
+		if(tmp1) {
+			return o[tmp]();
+		} else {
+			return o[field];
+		}
+	}
+};
+Reflect.fields = function(o) {
+	var a = [];
+	if(o != null) {
+		var hasOwnProperty = Object.prototype.hasOwnProperty;
+		for( var f in o ) {
+		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) {
+			a.push(f);
+		}
+		}
+	}
+	return a;
 };
 var StringTools = function() { };
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
 };
 var Style = function() { };
+var convert_ConvertSvg2Html = function(stage) {
+	var html = "\n";
+	html += "<section class=\"container\">\n";
+	var array = [];
+	var _g = 0;
+	var _g1 = stage.children.length;
+	while(_g < _g1) {
+		var i = _g++;
+		var _target = stage.children[i];
+		var _svgCombo = shape_SVGCombo.parse(_target);
+		array.push({ id : _svgCombo.get_element().dataset.id, x : _svgCombo.get_x(), y : _svgCombo.get_y(), width : _svgCombo.get_width(), height : _svgCombo.get_height()});
+	}
+	$global.console.log("array: ",array);
+	var copy = array.slice();
+	copy.sort(function(a,b) {
+		if(a.x < b.x) {
+			return -1;
+		} else if(a.x > b.x) {
+			return 1;
+		} else {
+			return 0;
+		}
+	});
+	$global.console.log("Sort with array.sort()",copy);
+	var structureObj = { };
+	var _g = 0;
+	var _g1 = copy.length;
+	while(_g < _g1) {
+		var i = _g++;
+		var obj = copy[i];
+		var row = "row-" + obj.y / Config.GRID;
+		if(!Object.prototype.hasOwnProperty.call(structureObj,row)) {
+			structureObj[row] = { };
+		}
+		if(!Object.prototype.hasOwnProperty.call(structureObj,row)) {
+			structureObj[row] = { };
+		}
+		var tObj = Reflect.getProperty(structureObj,row);
+		var col = "col-" + obj.x / Config.GRID;
+		if(!Object.prototype.hasOwnProperty.call(tObj,col)) {
+			tObj[col] = [];
+		}
+		var arr = Reflect.getProperty(tObj,col);
+		if(obj.id == "group-heading") {
+			arr.unshift(obj);
+		} else {
+			arr.push(obj);
+		}
+		tObj[col] = arr;
+	}
+	$global.console.log(structureObj);
+	var _g = 0;
+	var _g1 = Reflect.fields(structureObj);
+	while(_g < _g1.length) {
+		var i = _g1[_g];
+		++_g;
+		var obj = Reflect.field(structureObj,i);
+		html += "  <div class=\"row\">\n";
+		$global.console.log("---> ");
+		$global.console.log(i);
+		$global.console.log(obj);
+		var _g2 = 0;
+		var _g3 = Reflect.fields(obj);
+		while(_g2 < _g3.length) {
+			var j = _g3[_g2];
+			++_g2;
+			var arr = Reflect.field(obj,j);
+			$global.console.log(arr);
+			var __obj = arr[0];
+			html += "    <div class=\"col-" + __obj.width / Config.GRID + "\">";
+			var _g4 = 0;
+			var _g5 = arr.length;
+			while(_g4 < _g5) {
+				var i1 = _g4++;
+				var obj1 = arr[i1];
+				console.log("src/convert/ConvertSvg2Html.hx:84:",obj1);
+				html += "" + this.convert(obj1);
+			}
+			html += "</div>";
+			html += "\n";
+		}
+		html += "  </div>";
+	}
+	html += "</section>\n";
+	$global.console.log(html);
+	window.document.body.appendChild(utils_String2Node.parse(html));
+};
+convert_ConvertSvg2Html.prototype = {
+	convert: function(obj) {
+		var str = "";
+		switch(obj.id) {
+		case "group-heading":
+			str = "<h1>Heading1</h1>";
+			break;
+		case "group-image":
+			str = "<img src=\"https://picsum.photos/" + obj.width + "/" + obj.height + "\" alt=\"\" title=\"\"class=\"img-fluid\" />";
+			break;
+		case "group-paragraph":
+			str = "<p>Paragraph</p>";
+			break;
+		case "group-rect":
+			str = "<div style=\"display: flex; justify-content: center; align-items: center; background-color: " + utils_ColorUtil.randomColor() + "; width: " + obj.width + "px;height: " + obj.height + "px;\">Rectangle</div>";
+			break;
+		default:
+			console.log("src/convert/ConvertSvg2Html.hx:129:","case '" + obj.id + "': trace ('" + obj.id + "');");
+		}
+		return str;
+	}
+};
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
@@ -161,16 +287,38 @@ haxe_iterators_ArrayIterator.prototype = {
 		return this.array[this.current++];
 	}
 };
-var shape_SVGCombo = function(el) {
+var shape_SVGCombo = function(x,y,w,h) {
+	this.set_x(x);
+	this.set_y(y);
+	this.set_width(w != null ? w : Config.GRID * 2);
+	this.set_height(h != null ? h : Config.GRID * 2);
+	this.create(this.get_x(),this.get_y(),this.get_width(),this.get_height());
+};
+shape_SVGCombo.parse = function(el) {
 	var rect = el.getBoundingClientRect();
-	this.set_element(el);
-	this.set_width(rect.width);
-	this.set_height(rect.height);
-	this.set_bg(el.querySelector("[data-bg~=\"" + "group-element-bg" + "\"]"));
+	var width = rect.width;
+	var height = rect.height;
+	var x = rect.left;
+	var y = rect.top;
+	if(el.getAttribute("transform") != null) {
+		var tr = StringTools.replace(StringTools.replace(el.getAttribute("transform"),"translate(",""),")","");
+		x = parseFloat(tr.split(",")[0]);
+		y = parseFloat(tr.split(",")[1]);
+	}
+	var svgCombo = new shape_SVGCombo(x,y,width,height);
+	svgCombo.set_bg(el.querySelector("[data-bg~=\"" + "group-element-bg" + "\"]"));
+	svgCombo.set_width(parseFloat(svgCombo.get_bg().getAttribute("width")));
+	svgCombo.set_height(parseFloat(svgCombo.get_bg().getAttribute("height")));
+	svgCombo.set_element(el);
+	svgCombo.set_group(el);
+	return svgCombo;
 };
 shape_SVGCombo.prototype = {
-	update: function() {
-		console.log("src/shape/SVGCombo.hx:25:","SVGCombo - update");
+	create: function(x,y,w,h) {
+		console.log("src/shape/SVGCombo.hx:28:","SVGCombo - create");
+	}
+	,update: function() {
+		console.log("src/shape/SVGCombo.hx:32:","SVGCombo - update");
 	}
 	,get_width: function() {
 		return this.width;
@@ -196,57 +344,53 @@ shape_SVGCombo.prototype = {
 	,set_element: function(value) {
 		return this.element = value;
 	}
+	,get_group: function() {
+		return this.group;
+	}
+	,set_group: function(value) {
+		return this.group = value;
+	}
+	,get_y: function() {
+		return this.y;
+	}
+	,set_y: function(value) {
+		return this.y = value;
+	}
+	,get_x: function() {
+		return this.x;
+	}
+	,set_x: function(value) {
+		return this.x = value;
+	}
+	,__properties__: {set_height:"set_height",get_height:"get_height",set_width:"set_width",get_width:"get_width",set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x",set_group:"set_group",get_group:"get_group",set_element:"set_element",get_element:"get_element",set_bg:"set_bg",get_bg:"get_bg"}
 };
-var shape_SVGButton = function(el) {
-	shape_SVGCombo.call(this,el);
+var shape_SVGButton = function(x,y,w,h) {
+	shape_SVGCombo.call(this,x,y,w,h);
 	var text = this.get_element().querySelector("[data-centered~=\"" + "group-element-centered" + "\"]");
 	var tmp = "" + this.get_width() / 2;
 	text.setAttribute("x",tmp);
 	var tmp = "" + this.get_height() / 2;
 	text.setAttribute("y",tmp);
 };
-shape_SVGButton.create = function(x,y) {
-	var group = svg_Group.create(x,y);
-	group.dataset.type = "group-type-svgcombo";
-	group.dataset.id = "group-btn";
-	var rect = svg_Rect.create(0,0,100,Config.GRID * 0.5);
-	rect.dataset.bg = "group-element-bg";
-	group.appendChild(rect);
-	var text = svg_Text.create("Submit",50.,Config.GRID * 0.25);
-	text.dataset.centered = "group-element-centered";
-	text.setAttribute("text-anchor","middle");
-	text.setAttribute("dominant-baseline","central");
-	group.appendChild(text);
-	return group;
-};
 shape_SVGButton.__super__ = shape_SVGCombo;
 shape_SVGButton.prototype = $extend(shape_SVGCombo.prototype,{
+	create: function(x,y,w,h) {
+		var group = svg_Group.create(x,y);
+		group.dataset.type = "group-type-svgcombo";
+		group.dataset.id = "group-btn";
+		var rect = svg_Rect.create(0,0,100,Config.GRID * 0.5);
+		rect.dataset.bg = "group-element-bg";
+		group.appendChild(rect);
+		var text = svg_Text.create("Submit",50.,Config.GRID * 0.25);
+		text.dataset.centered = "group-element-centered";
+		text.setAttribute("text-anchor","middle");
+		text.setAttribute("dominant-baseline","central");
+		group.appendChild(text);
+		this.set_group(group);
+	}
 });
-var shape_SVGHeading = function(el) {
-	shape_SVGCombo.call(this,el);
-};
-shape_SVGHeading.create = function(x,y) {
-	var _w = Config.GRID * 4;
-	var _h = Config.GRID * 0.5;
-	var _padX = Config.GRID * 0.25;
-	var _padY = _h * 0.5;
-	var group = svg_Group.create(x,y);
-	group.dataset.type = "group-type-svgcombo";
-	group.dataset.id = "group-heading";
-	var rect = svg_Rect.create(0,0,_w,_h);
-	rect.dataset.bg = "group-element-bg";
-	group.appendChild(rect);
-	var line = new svg_Line(_padX,_padY,_w - _padX,_padY);
-	line.set_stroke("#e5e3e2");
-	line.set_strokeWidth(_h * .6);
-	line.set_strokeLinecap("round");
-	group.appendChild(line.child());
-	var text = svg_Text.create("Heading",_w / 2,_h / 2);
-	text.dataset.centered = "group-element-centered";
-	text.setAttribute("text-anchor","middle");
-	text.setAttribute("dominant-baseline","central");
-	group.appendChild(text);
-	return group;
+var shape_SVGHeading = function(x,y,w,h) {
+	shape_SVGCombo.call(this,x,y,w,h);
 };
 shape_SVGHeading.__super__ = shape_SVGCombo;
 shape_SVGHeading.prototype = $extend(shape_SVGCombo.prototype,{
@@ -258,28 +402,52 @@ shape_SVGHeading.prototype = $extend(shape_SVGCombo.prototype,{
 		var tmp = "" + this.get_height() / 2;
 		text.setAttribute("y",tmp);
 	}
+	,create: function(x,y,w,h) {
+		var _w = Config.GRID * 4;
+		var _h = Config.GRID * 0.5;
+		var _padX = Config.GRID * 0.25;
+		var _padY = _h * 0.5;
+		var group = svg_Group.create(x,y);
+		group.dataset.type = "group-type-svgcombo";
+		group.dataset.id = "group-heading";
+		var rect = svg_Rect.create(0,0,w,_h);
+		rect.dataset.bg = "group-element-bg";
+		group.appendChild(rect);
+		var line = new svg_Line(_padX,_padY,w - _padX,_padY);
+		line.set_stroke("#e5e3e2");
+		line.set_strokeWidth(_h * .6);
+		line.set_strokeLinecap("round");
+		group.appendChild(line.child());
+		var text = svg_Text.create("Heading",w / 2,_h / 2);
+		text.dataset.centered = "group-element-centered";
+		text.setAttribute("text-anchor","middle");
+		text.setAttribute("dominant-baseline","central");
+		group.appendChild(text);
+		this.set_group(group);
+	}
 });
-var shape_SVGImage = function(el) {
-	shape_SVGCombo.call(this,el);
-};
-shape_SVGImage.create = function(x,y) {
-	var group = svg_Group.create(x,y);
-	group.dataset.type = "group-type-svgcombo";
-	group.dataset.id = "group-image";
-	var rect = svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2);
-	rect.dataset.bg = "group-element-bg";
-	group.appendChild(rect);
-	var text = svg_Text.create("Image",Config.GRID,Config.GRID);
-	text.dataset.centered = "group-element-centered";
-	text.setAttribute("text-anchor","middle");
-	text.setAttribute("dominant-baseline","central");
-	group.appendChild(text);
-	return group;
+var shape_SVGImage = function(x,y,w,h) {
+	shape_SVGCombo.call(this,x,y,w,h);
 };
 shape_SVGImage.__super__ = shape_SVGCombo;
 shape_SVGImage.prototype = $extend(shape_SVGCombo.prototype,{
-	update: function() {
-		console.log("src/shape/SVGImage.hx:12:","SVGImage update");
+	create: function(x,y,w,h) {
+		var gr = svg_Group.create(x,y);
+		gr.dataset.type = "group-type-svgcombo";
+		gr.dataset.id = "group-image";
+		var rect = svg_Rect.create(0,0,w,h);
+		rect.dataset.bg = "group-element-bg";
+		rect.style.fill = utils_ColorUtil.randomColor();
+		gr.appendChild(rect);
+		var text = svg_Text.create("Image",w * 0.5,h * 0.5);
+		text.dataset.centered = "group-element-centered";
+		text.setAttribute("text-anchor","middle");
+		text.setAttribute("dominant-baseline","central");
+		gr.appendChild(text);
+		this.set_group(gr);
+	}
+	,update: function() {
+		console.log("src/shape/SVGImage.hx:53:","SVGImage update");
 		var text = this.get_element().querySelector("[data-centered~=\"" + "group-element-centered" + "\"]");
 		var tmp = "" + this.get_width() / 2;
 		text.setAttribute("x",tmp);
@@ -287,42 +455,8 @@ shape_SVGImage.prototype = $extend(shape_SVGCombo.prototype,{
 		text.setAttribute("y",tmp);
 	}
 });
-var shape_SVGParagraph = function(el) {
-	shape_SVGCombo.call(this,el);
-};
-shape_SVGParagraph.create = function(x,y) {
-	var _w = Config.GRID * 4;
-	var _h = Config.GRID * 2;
-	var _padX = Config.GRID * 0.25;
-	var _padY = _h * 0.5;
-	var group = svg_Group.create(x,y);
-	group.dataset.type = "group-type-svgcombo";
-	group.dataset.id = "group-paragraph";
-	var rect = svg_Rect.create(0,0,_w,_h);
-	rect.dataset.bg = "group-element-bg";
-	group.appendChild(rect);
-	var total = Math.floor(_w / _padX / 2);
-	var gr = new svg_Group();
-	gr.set_dataType("foo");
-	gr.element.classList.add(Style.IGNORE);
-	var _g = 1;
-	var _g1 = total;
-	while(_g < _g1) {
-		var i = _g++;
-		var __p = _padX * i;
-		var line = new svg_Line(_padX,__p,_w - _padX,__p);
-		line.set_stroke("#e5e3e2");
-		line.set_strokeWidth(8);
-		line.set_strokeLinecap("round");
-		gr.appendChild(line.get_element());
-	}
-	group.appendChild(gr.element);
-	var text = svg_Text.create("Paragraph",_w / 2,_h / 2);
-	text.dataset.centered = "group-element-centered";
-	text.setAttribute("text-anchor","middle");
-	text.setAttribute("dominant-baseline","central");
-	group.appendChild(text);
-	return group;
+var shape_SVGParagraph = function(x,y,w,h) {
+	shape_SVGCombo.call(this,x,y,w,h);
 };
 shape_SVGParagraph.__super__ = shape_SVGCombo;
 shape_SVGParagraph.prototype = $extend(shape_SVGCombo.prototype,{
@@ -335,22 +469,56 @@ shape_SVGParagraph.prototype = $extend(shape_SVGCombo.prototype,{
 		text.setAttribute("y",tmp);
 		var gr = this.get_element().querySelector("[data-type~=\"foo\"]");
 	}
+	,create: function(x,y,w,h) {
+		var _w = Config.GRID * 4;
+		var _h = Config.GRID * 2;
+		var _padX = Config.GRID * 0.25;
+		var _padY = _h * 0.5;
+		var group = svg_Group.create(x,y);
+		group.dataset.type = "group-type-svgcombo";
+		group.dataset.id = "group-paragraph";
+		var rect = svg_Rect.create(0,0,w,h);
+		rect.dataset.bg = "group-element-bg";
+		group.appendChild(rect);
+		var total = Math.floor(h / _padX);
+		var gr = new svg_Group();
+		gr.set_dataType("foo");
+		gr.element.classList.add(Style.IGNORE);
+		var _g = 1;
+		var _g1 = total;
+		while(_g < _g1) {
+			var i = _g++;
+			var __p = _padX * i;
+			var line = new svg_Line(_padX,__p,w - _padX,__p);
+			line.set_stroke("#e5e3e2");
+			line.set_strokeWidth(8);
+			line.set_strokeLinecap("round");
+			gr.appendChild(line.get_element());
+		}
+		group.appendChild(gr.element);
+		var text = svg_Text.create("Paragraph",w / 2,h / 2);
+		text.dataset.centered = "group-element-centered";
+		text.setAttribute("text-anchor","middle");
+		text.setAttribute("dominant-baseline","central");
+		group.appendChild(text);
+		this.set_group(group);
+	}
 });
-var shape_SVGRectangle = function(el) {
-	shape_SVGCombo.call(this,el);
-};
-shape_SVGRectangle.create = function(x,y) {
-	var group = svg_Group.create(x,y);
-	group.dataset.type = "group-type-svgcombo";
-	group.dataset.id = "group-rect";
-	var rect = svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2);
-	rect.dataset.bg = "group-element-bg";
-	rect.style.fill = utils_ColorUtil.randomColor();
-	group.appendChild(rect);
-	return group;
+var shape_SVGRectangle = function(x,y,w,h) {
+	shape_SVGCombo.call(this,x,y,w,h);
 };
 shape_SVGRectangle.__super__ = shape_SVGCombo;
 shape_SVGRectangle.prototype = $extend(shape_SVGCombo.prototype,{
+	create: function(x,y,w,h) {
+		var gr = svg_Group.create(x,y);
+		gr.dataset.type = "group-type-svgcombo";
+		gr.dataset.id = "group-rect";
+		var rect = svg_Rect.create(0,0,w,h);
+		rect.dataset.bg = "group-element-bg";
+		rect.style.fill = utils_ColorUtil.randomColor();
+		gr.appendChild(rect);
+		this.set_group(gr);
+	}
 });
 var svg_Circle = function() { };
 svg_Circle.create = function(x,y,r) {
@@ -400,6 +568,7 @@ svg_Group.prototype = {
 		this.element.dataset.type = value;
 		return this.dataType = value;
 	}
+	,__properties__: {set_dataType:"set_dataType"}
 };
 var svg_Line = function(x1,y1,x2,y2) {
 	if(y1 == null) {
@@ -464,6 +633,7 @@ svg_Line.prototype = {
 		this.get_element().setAttribute("stroke-width","" + value);
 		return this.strokeWidth = value;
 	}
+	,__properties__: {set_strokeLinecap:"set_strokeLinecap",set_strokeWidth:"set_strokeWidth",set_stroke:"set_stroke",set_element:"set_element",get_element:"get_element"}
 };
 var svg_Rect = function() { };
 svg_Rect.create = function(x,y,w,h) {
@@ -624,12 +794,8 @@ var tools_Selector = function(stage) {
 			console.log("src/tools/Selector.hx:117:",_gthis.isResizer);
 			var clientX = Math.round(e.clientX);
 			var clientY = Math.round(e.clientY);
-			if(_gthis._target.tagName == "rect") {
-				_gthis._target.setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
-				_gthis._target.setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
-			}
 			if(_gthis._target.dataset.type == "group-type-svgcombo") {
-				var _svgCombo = new shape_SVGCombo(_gthis._target);
+				var _svgCombo = shape_SVGCombo.parse(_gthis._target);
 				_svgCombo.get_bg().setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
 				_svgCombo.get_bg().setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
 			}
@@ -658,30 +824,32 @@ tools_Selector.prototype = {
 		this.resizeEl.onmousedown = function(e) {
 			console.log("src/tools/Selector.hx:196:","resizeEl.onmousedown");
 			_gthis.isResizer = true;
-			var tmp = e.clientX - parseFloat(_gthis._target.getAttribute("width"));
-			_gthis.xoffset.x = Math.round(tmp);
-			var tmp = e.clientY - parseFloat(_gthis._target.getAttribute("height"));
-			_gthis.xoffset.y = Math.round(tmp);
 			if(_gthis._target.dataset.type == "group-type-svgcombo") {
-				var _svgCombo = new shape_SVGCombo(_gthis._target);
+				var _svgCombo = shape_SVGCombo.parse(_gthis._target);
 				var tmp = e.clientX - _svgCombo.get_width();
 				_gthis.xoffset.x = Math.round(tmp);
 				var tmp = e.clientY - _svgCombo.get_height();
 				_gthis.xoffset.y = Math.round(tmp);
+			} else {
+				var tmp = e.clientX - parseFloat(_gthis._target.getAttribute("width"));
+				_gthis.xoffset.x = Math.round(tmp);
+				var tmp = e.clientY - parseFloat(_gthis._target.getAttribute("height"));
+				_gthis.xoffset.y = Math.round(tmp);
 			}
-			console.log("src/tools/Selector.hx:206:",_gthis.xoffset);
+			console.log("src/tools/Selector.hx:207:",_gthis.xoffset);
 		};
 		this.resizeEl.onmouseup = function(e) {
-			console.log("src/tools/Selector.hx:210:","resizeEl.onmouseup");
+			console.log("src/tools/Selector.hx:211:","resizeEl.onmouseup");
 			if(_gthis.isResizer) {
-				var _w = parseFloat(_gthis._target.getAttribute("width"));
-				var _h = parseFloat(_gthis._target.getAttribute("height"));
-				_gthis._target.setAttribute("width","" + Math.round(_w / _gthis._off) * _gthis._off);
-				_gthis._target.setAttribute("height","" + Math.round(_h / _gthis._off) * _gthis._off);
 				if(_gthis._target.dataset.type == "group-type-svgcombo") {
-					var _svgCombo = new shape_SVGCombo(_gthis._target);
+					var _svgCombo = shape_SVGCombo.parse(_gthis._target);
 					_svgCombo.get_bg().setAttribute("width","" + Math.round(_svgCombo.get_width() / _gthis._off) * _gthis._off);
 					_svgCombo.get_bg().setAttribute("height","" + Math.round(_svgCombo.get_height() / _gthis._off) * _gthis._off);
+				} else {
+					var _w = parseFloat(_gthis._target.getAttribute("width"));
+					var _h = parseFloat(_gthis._target.getAttribute("height"));
+					_gthis._target.setAttribute("width","" + Math.round(_w / _gthis._off) * _gthis._off);
+					_gthis._target.setAttribute("height","" + Math.round(_h / _gthis._off) * _gthis._off);
 				}
 				_gthis.updateSelectionElement(_gthis._target);
 			}
@@ -716,30 +884,29 @@ tools_Selector.prototype = {
 		if(element.dataset.type == "group-type-svgcombo") {
 			switch(element.dataset.id) {
 			case "group-btn":
-				var _svgCombo = new shape_SVGButton(element);
+				var _svgCombo = shape_SVGCombo.parse(element);
 				_svgCombo.update();
 				break;
 			case "group-heading":
-				var _svgCombo = new shape_SVGHeading(element);
+				var _svgCombo = shape_SVGCombo.parse(element);
 				_svgCombo.update();
 				break;
 			case "group-image":
-				var _svgCombo = new shape_SVGImage(element);
+				var _svgCombo = shape_SVGCombo.parse(element);
 				_svgCombo.update();
 				break;
 			case "group-paragraph":
-				var _svgCombo = new shape_SVGParagraph(element);
+				var _svgCombo = shape_SVGCombo.parse(element);
 				_svgCombo.update();
 				break;
 			case "group-rect":
-				var _svgCombo = new shape_SVGRectangle(element);
+				var _svgCombo = shape_SVGCombo.parse(element);
 				_svgCombo.update();
 				break;
 			default:
-				var _svgCombo = new shape_SVGCombo(element);
+				var _svgCombo = shape_SVGCombo.parse(element);
 				_svgCombo.update();
 			}
-			var tmp = element.dataset.id == "group-image";
 		}
 	}
 	,isParentAGroup: function(target) {
@@ -770,9 +937,11 @@ var utils_ColorUtil = function() { };
 utils_ColorUtil.randomColor = function() {
 	return "#" + Math.floor(Math.random() * 16777215).toString(16);
 };
-var utils_MathUtil = function() { };
-utils_MathUtil.getRandomInt = function(min,max) {
-	return Math.floor(Math.random() * (max - min)) + min;
+var utils_String2Node = function() { };
+utils_String2Node.parse = function(str) {
+	var parser = new DOMParser();
+	var doc = parser.parseFromString(str,"text/html");
+	return doc.body;
 };
 Config.WIDTH = 600;
 Config.HEIGHT = 400;

@@ -131,39 +131,39 @@ class Selector {
 				var clientX = Math.round(e.clientX);
 				var clientY = Math.round(e.clientY);
 
-				if (_target.tagName == 'rect') {
-					// var _x = Math.round(Std.parseFloat(_target.getAttribute('x')));
-					// var _y = Math.round(Std.parseFloat(_target.getAttribute('y')));
-					// var _w = Math.round(Std.parseFloat(_target.getAttribute('width')));
-					// var _h = Math.round(Std.parseFloat(_target.getAttribute('height')));
-					// //
-					// // var _xx = (e.clientX + offset.x);
-					// // var _yy = (e.clientY + offset.y);
-					// //
-					// // var _ww = (_xx + _w);
-					// // var _hh = (_yy + _h);
+				// if (_target.tagName == 'rect') {
+				// 	// var _x = Math.round(Std.parseFloat(_target.getAttribute('x')));
+				// 	// var _y = Math.round(Std.parseFloat(_target.getAttribute('y')));
+				// 	// var _w = Math.round(Std.parseFloat(_target.getAttribute('width')));
+				// 	// var _h = Math.round(Std.parseFloat(_target.getAttribute('height')));
+				// 	// //
+				// 	// // var _xx = (e.clientX + offset.x);
+				// 	// // var _yy = (e.clientY + offset.y);
+				// 	// //
+				// 	// // var _ww = (_xx + _w);
+				// 	// // var _hh = (_yy + _h);
 
-					// // _target.setAttribute('width', '${_x}');
-					// // _target.setAttribute('height', '${_y}');
+				// 	// // _target.setAttribute('width', '${_x}');
+				// 	// // _target.setAttribute('height', '${_y}');
 
-					// // offset.x = Math.round(Std.parseFloat(target.getAttribute('x')) - e.clientX);
-					// // offset.y = Math.round(Std.parseFloat(target.getAttribute('y')) - e.clientY);
+				// 	// // offset.x = Math.round(Std.parseFloat(target.getAttribute('x')) - e.clientX);
+				// 	// // offset.y = Math.round(Std.parseFloat(target.getAttribute('y')) - e.clientY);
 
-					// console.group('x');
-					// console.log(_target);
-					// console.log(xoffset);
-					// console.log('target x: ' + _x + ', y:  ' + _y + ', width: ' + _w + ', height: ' + _h);
-					// console.log('clientX: ' + e.clientX + ', clientY: ' + e.clientY);
-					// console.log('new w: ' + -(xoffset.x - e.clientX) + ', new h: ' + -(xoffset.y - e.clientY));
-					// // console.log('xx: ' + _xx + ', yy: ' + _yy);
-					// // console.log('new w: ' + (_ww - _xx) + ', new h: ' + (_hh - _yy));
-					// console.groupEnd();
+				// 	// console.group('x');
+				// 	// console.log(_target);
+				// 	// console.log(xoffset);
+				// 	// console.log('target x: ' + _x + ', y:  ' + _y + ', width: ' + _w + ', height: ' + _h);
+				// 	// console.log('clientX: ' + e.clientX + ', clientY: ' + e.clientY);
+				// 	// console.log('new w: ' + -(xoffset.x - e.clientX) + ', new h: ' + -(xoffset.y - e.clientY));
+				// 	// // console.log('xx: ' + _xx + ', yy: ' + _yy);
+				// 	// // console.log('new w: ' + (_ww - _xx) + ', new h: ' + (_hh - _yy));
+				// 	// console.groupEnd();
 
-					_target.setAttribute('width', '${- Math.round(xoffset.x - clientX)}');
-					_target.setAttribute('height', '${- Math.round(xoffset.y - clientY)}');
-				}
+				// 	_target.setAttribute('width', '${- Math.round(xoffset.x - clientX)}');
+				// 	_target.setAttribute('height', '${- Math.round(xoffset.y - clientY)}');
+				// }
 				if (_target.dataset.type == Names.GROUP_TYPE) {
-					var _svgCombo:SVGCombo = new SVGCombo(_target);
+					var _svgCombo:SVGCombo = SVGCombo.parse(_target);
 					_svgCombo.bg.setAttribute('width', '${- Math.round(xoffset.x - clientX)}');
 					_svgCombo.bg.setAttribute('height', '${- Math.round(xoffset.y - clientY)}');
 				}
@@ -195,13 +195,14 @@ class Selector {
 		resizeEl.onmousedown = function(e) {
 			trace('resizeEl.onmousedown');
 			isResizer = true;
-			xoffset.x = Math.round(e.clientX - Std.parseFloat(_target.getAttribute('width')));
-			xoffset.y = Math.round(e.clientY - Std.parseFloat(_target.getAttribute('height')));
 
 			if (_target.dataset.type == Names.GROUP_TYPE) {
-				var _svgCombo:SVGCombo = new SVGCombo(_target);
+				var _svgCombo:SVGCombo = SVGCombo.parse(_target);
 				xoffset.x = Math.round(e.clientX - _svgCombo.width);
 				xoffset.y = Math.round(e.clientY - _svgCombo.height);
+			} else {
+				xoffset.x = Math.round(e.clientX - Std.parseFloat(_target.getAttribute('width')));
+				xoffset.y = Math.round(e.clientY - Std.parseFloat(_target.getAttribute('height')));
 			}
 			trace(xoffset);
 		}
@@ -209,14 +210,15 @@ class Selector {
 		resizeEl.onmouseup = function(e) {
 			trace('resizeEl.onmouseup');
 			if (isResizer) {
-				var _w = Std.parseFloat(_target.getAttribute('width'));
-				var _h = Std.parseFloat(_target.getAttribute('height'));
-				_target.setAttribute('width', '${Math.round(_w / _off) * _off}');
-				_target.setAttribute('height', '${Math.round(_h / _off) * _off}');
 				if (_target.dataset.type == Names.GROUP_TYPE) {
-					var _svgCombo:SVGCombo = new SVGCombo(_target);
+					var _svgCombo:SVGCombo = SVGCombo.parse(_target);
 					_svgCombo.bg.setAttribute('width', '${Math.round(_svgCombo.width / _off) * _off}');
 					_svgCombo.bg.setAttribute('height', '${Math.round(_svgCombo.height / _off) * _off}');
+				} else {
+					var _w = Std.parseFloat(_target.getAttribute('width'));
+					var _h = Std.parseFloat(_target.getAttribute('height'));
+					_target.setAttribute('width', '${Math.round(_w / _off) * _off}');
+					_target.setAttribute('height', '${Math.round(_h / _off) * _off}');
 				}
 				updateSelectionElement(_target);
 			}
@@ -259,27 +261,27 @@ class Selector {
 		if (element.dataset.type == Names.GROUP_TYPE) {
 			switch (element.dataset.id) {
 				case Names.GROUP_IMAGE:
-					var _svgCombo = new SVGImage(element);
+					var _svgCombo:SVGImage = cast SVGCombo.parse(element);
 					_svgCombo.update();
 				case Names.GROUP_BTN:
-					var _svgCombo = new SVGButton(element);
+					var _svgCombo:SVGButton = cast SVGCombo.parse(element);
 					_svgCombo.update();
 				case Names.GROUP_RECT:
-					var _svgCombo = new SVGRectangle(element);
+					var _svgCombo:SVGRectangle = cast SVGCombo.parse(element);
 					_svgCombo.update();
 				case Names.GROUP_HEADING:
-					var _svgCombo = new SVGHeading(element);
+					var _svgCombo:SVGHeading = cast SVGCombo.parse(element);
 					_svgCombo.update();
 				case Names.GROUP_PARAGRAPH:
-					var _svgCombo = new SVGParagraph(element);
+					var _svgCombo:SVGParagraph = cast SVGCombo.parse(element);
 					_svgCombo.update();
 				default:
 					// trace("case '" + element.dataset.id + "': trace ('" + element.dataset.id + "');");
-					var _svgCombo = new SVGCombo(element);
+					var _svgCombo = SVGCombo.parse(element);
 					_svgCombo.update();
 			}
 
-			if (element.dataset.id == Names.GROUP_IMAGE) {} else {}
+			// if (element.dataset.id == Names.GROUP_IMAGE) {} else {}
 		}
 	}
 
