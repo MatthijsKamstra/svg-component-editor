@@ -1,4 +1,10 @@
 (function ($global) { "use strict";
+function $extend(from, fields) {
+	var proto = Object.create(from);
+	for (var name in fields) proto[name] = fields[name];
+	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
+	return proto;
+}
 var Config = function() { };
 var Main = function() {
 	this.HEIGHT = Config.HEIGHT;
@@ -17,6 +23,7 @@ Main.prototype = {
 		var createCircle = window.document.getElementById("createCircle");
 		var createRectangle = window.document.getElementById("createRectangle");
 		var createText = window.document.getElementById("createText");
+		var btnRect = window.document.getElementById("js-createRectangle");
 		var btnImage = window.document.getElementById("js-createImage");
 		var btnButton = window.document.getElementById("js-createButton");
 		var load = window.document.getElementById("load");
@@ -47,13 +54,17 @@ Main.prototype = {
 			element.style.fill = _gthis.randomColor();
 			editor.addElement(element);
 		});
+		btnRect.addEventListener("click",function() {
+			var group = shape_SVGRectangle.create(Config.GRID,Config.GRID);
+			editor.addElement(group);
+		});
 		btnImage.addEventListener("click",function() {
-			console.log("src/Main.hx:92:","btnImage");
+			console.log("src/Main.hx:99:","btnImage");
 			var group = shape_SVGImage.create(Config.GRID,Config.GRID);
 			editor.addElement(group);
 		});
 		btnButton.addEventListener("click",function() {
-			console.log("src/Main.hx:98:","btnButton");
+			console.log("src/Main.hx:105:","btnButton");
 			var group = shape_SVGButton.create(Config.GRID,Config.GRID);
 			editor.addElement(group);
 		});
@@ -146,30 +157,103 @@ haxe_iterators_ArrayIterator.prototype = {
 		return this.array[this.current++];
 	}
 };
-var shape_SVGButton = function() { };
+var shape_SVGCombo = function(el) {
+	var rect = el.getBoundingClientRect();
+	this.set_element(el);
+	this.set_width(rect.width);
+	this.set_height(rect.height);
+	this.set_bg(el.querySelector("[data-bg~=\"" + Names.GROUP_BG + "\"]"));
+};
+shape_SVGCombo.prototype = {
+	update: function() {
+		console.log("src/shape/SVGCombo.hx:25:","SVGCombo - update");
+	}
+	,get_width: function() {
+		return this.width;
+	}
+	,set_width: function(value) {
+		return this.width = value;
+	}
+	,get_height: function() {
+		return this.height;
+	}
+	,set_height: function(value) {
+		return this.height = value;
+	}
+	,get_bg: function() {
+		return this.bg;
+	}
+	,set_bg: function(value) {
+		return this.bg = value;
+	}
+	,get_element: function() {
+		return this.element;
+	}
+	,set_element: function(value) {
+		return this.element = value;
+	}
+};
+var shape_SVGButton = function(el) {
+	shape_SVGCombo.call(this,el);
+};
 shape_SVGButton.create = function(x,y) {
 	var group = svg_Group.create(x,y);
-	group.id = Names.GROUP_BTN;
-	group.dataset.id = Names.GROUP_ID_BUTTON;
-	group.appendChild(svg_Rect.create(0,0,100,Config.GRID * 0.5));
+	group.dataset.type = Names.GROUP_TYPE;
+	group.dataset.id = Names.GROUP_BTN;
+	var rect = svg_Rect.create(0,0,100,Config.GRID * 0.5);
+	rect.dataset.bg = Names.GROUP_BG;
+	group.appendChild(rect);
 	var text = svg_Text.create("Submit",50.,Config.GRID * 0.25);
 	text.setAttribute("text-anchor","middle");
 	text.setAttribute("dominant-baseline","central");
 	group.appendChild(text);
 	return group;
 };
-var shape_SVGImage = function() { };
+shape_SVGButton.__super__ = shape_SVGCombo;
+shape_SVGButton.prototype = $extend(shape_SVGCombo.prototype,{
+});
+var shape_SVGImage = function(el) {
+	shape_SVGCombo.call(this,el);
+};
 shape_SVGImage.create = function(x,y) {
 	var group = svg_Group.create(x,y);
-	group.id = Names.GROUP_IMAGE;
-	group.dataset.id = Names.GROUP_ID_IMAGE;
-	group.appendChild(svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2));
+	group.dataset.type = Names.GROUP_TYPE;
+	group.dataset.id = Names.GROUP_IMAGE;
+	var rect = svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2);
+	rect.dataset.bg = Names.GROUP_BG;
+	group.appendChild(rect);
 	var text = svg_Text.create("Image",Config.GRID,Config.GRID);
+	text.dataset.centered = Names.GROUP_CENTERED;
 	text.setAttribute("text-anchor","middle");
 	text.setAttribute("dominant-baseline","central");
 	group.appendChild(text);
 	return group;
 };
+shape_SVGImage.__super__ = shape_SVGCombo;
+shape_SVGImage.prototype = $extend(shape_SVGCombo.prototype,{
+	update: function() {
+		console.log("src/shape/SVGImage.hx:14:","SVGImage update");
+		var text = this.get_element().querySelector("[data-centered~=\"" + Names.GROUP_CENTERED + "\"]");
+		text.setAttribute("x","" + this.get_width() / 2);
+		text.setAttribute("y","" + this.get_height() / 2);
+	}
+});
+var shape_SVGRectangle = function(el) {
+	shape_SVGCombo.call(this,el);
+};
+shape_SVGRectangle.create = function(x,y) {
+	var group = svg_Group.create(x,y);
+	group.dataset.type = Names.GROUP_TYPE;
+	group.dataset.id = Names.GROUP_RECT;
+	var rect = svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2);
+	rect.dataset.bg = Names.GROUP_BG;
+	rect.style.fill = utils_ColorUtil.randomColor();
+	group.appendChild(rect);
+	return group;
+};
+shape_SVGRectangle.__super__ = shape_SVGCombo;
+shape_SVGRectangle.prototype = $extend(shape_SVGCombo.prototype,{
+});
 var svg_Circle = function() { };
 svg_Circle.create = function(x,y,r) {
 	if(r == null) {
@@ -385,13 +469,18 @@ var tools_Selector = function(stage) {
 				_gthis.isResizer = false;
 				return;
 			}
-			console.log("src/tools/Selector.hx:110:","window.onmousemove");
-			console.log("src/tools/Selector.hx:111:",_gthis.isResizer);
+			console.log("src/tools/Selector.hx:112:","window.onmousemove");
+			console.log("src/tools/Selector.hx:113:",_gthis.isResizer);
+			var clientX = Math.round(e.clientX);
+			var clientY = Math.round(e.clientY);
 			if(_gthis._target.tagName == "rect") {
-				var clientX = Math.round(e.clientX);
-				var clientY = Math.round(e.clientY);
 				_gthis._target.setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
 				_gthis._target.setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
+			}
+			if(_gthis._target.dataset.type == Names.GROUP_TYPE) {
+				var _svgCombo = new shape_SVGCombo(_gthis._target);
+				_svgCombo.get_bg().setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
+				_svgCombo.get_bg().setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
 			}
 			_gthis.updateSelectionElement(_gthis._target);
 		}
@@ -408,22 +497,31 @@ tools_Selector.prototype = {
 				_gthis.resizeEl.classList.remove("show");
 				return;
 			}
-			_gthis.resizeEl.classList.add("show");
+			if(_gthis._target.dataset.type == Names.GROUP_TYPE) {
+				_gthis.resizeEl.classList.add("show");
+			}
 		};
 		this.resizeEl.onmouseout = function(e) {
 			_gthis.resizeEl.classList.remove("show");
 		};
 		this.resizeEl.onmousedown = function(e) {
-			console.log("src/tools/Selector.hx:184:","resizeEl.onmousedown");
+			console.log("src/tools/Selector.hx:192:","resizeEl.onmousedown");
 			_gthis.isResizer = true;
 			var tmp = e.clientX - parseFloat(_gthis._target.getAttribute("width"));
 			_gthis.xoffset.x = Math.round(tmp);
 			var tmp = e.clientY - parseFloat(_gthis._target.getAttribute("height"));
 			_gthis.xoffset.y = Math.round(tmp);
-			console.log("src/tools/Selector.hx:188:",_gthis.xoffset);
+			if(_gthis._target.dataset.type == Names.GROUP_TYPE) {
+				var _svgCombo = new shape_SVGCombo(_gthis._target);
+				var tmp = e.clientX - _svgCombo.get_width();
+				_gthis.xoffset.x = Math.round(tmp);
+				var tmp = e.clientY - _svgCombo.get_height();
+				_gthis.xoffset.y = Math.round(tmp);
+			}
+			console.log("src/tools/Selector.hx:202:",_gthis.xoffset);
 		};
 		this.resizeEl.onmouseup = function(e) {
-			console.log("src/tools/Selector.hx:191:","resizeEl.onmouseup");
+			console.log("src/tools/Selector.hx:206:","resizeEl.onmouseup");
 			if(_gthis.isResizer) {
 				var _w = parseFloat(_gthis._target.getAttribute("width"));
 				var _h = parseFloat(_gthis._target.getAttribute("height"));
@@ -459,6 +557,16 @@ tools_Selector.prototype = {
 		this.selectionEl.style.display = "block";
 		this.resizeEl.style.left = rect.left + rect.width + "px";
 		this.resizeEl.style.top = rect.top + rect.height + "px";
+		if(element.dataset.type == Names.GROUP_TYPE) {
+			if(element.dataset.id == Names.GROUP_IMAGE) {
+				console.log("src/tools/Selector.hx:253:","image");
+				var _svgCombo = new shape_SVGImage(element);
+				_svgCombo.update();
+			} else {
+				var _svgCombo = new shape_SVGCombo(element);
+				_svgCombo.update();
+			}
+		}
 	}
 	,isParentAGroup: function(target) {
 		if(target.classList.contains(Style.IGNORE)) {
@@ -484,6 +592,10 @@ tools_Source.prototype = {
 		this.dom.textContent = text;
 	}
 };
+var utils_ColorUtil = function() { };
+utils_ColorUtil.randomColor = function() {
+	return "#" + Math.floor(Math.random() * 16777215).toString(16);
+};
 var utils_MathUtil = function() { };
 utils_MathUtil.getRandomInt = function(min,max) {
 	return Math.floor(Math.random() * (max - min)) + min;
@@ -493,9 +605,11 @@ Config.HEIGHT = 400;
 Config.GRID = Config.WIDTH / 12;
 Names.GROUP_BTN = "group-btn";
 Names.GROUP_IMAGE = "group-image";
+Names.GROUP_RECT = "group-rect";
 Names.GROUP_GRID = "group-grid";
-Names.GROUP_ID_BUTTON = "button";
-Names.GROUP_ID_IMAGE = "image";
+Names.GROUP_BG = "group-element-bg";
+Names.GROUP_CENTERED = "group-element-centered";
+Names.GROUP_TYPE = "svgcombo";
 Style.IGNORE = "ignore";
 svg_Default.NS = "http://www.w3.org/2000/svg";
 Main.main();

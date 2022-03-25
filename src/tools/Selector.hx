@@ -1,5 +1,7 @@
 package tools;
 
+import shape.SVGCombo;
+import shape.SVGImage;
 import js.html.svg.SVGElement;
 import js.html.DivElement;
 import js.html.SpanElement;
@@ -122,6 +124,8 @@ class Selector {
 
 				// offset.x = Math.round(Std.parseFloat(_target.getAttribute('x')) - e.clientX);
 				// offset.y = Math.round(Std.parseFloat(_target.getAttribute('y')) - e.clientY);
+				var clientX = Math.round(e.clientX);
+				var clientY = Math.round(e.clientY);
 
 				if (_target.tagName == 'rect') {
 					// var _x = Math.round(Std.parseFloat(_target.getAttribute('x')));
@@ -131,8 +135,6 @@ class Selector {
 					// //
 					// // var _xx = (e.clientX + offset.x);
 					// // var _yy = (e.clientY + offset.y);
-					var clientX = Math.round(e.clientX);
-					var clientY = Math.round(e.clientY);
 					// //
 					// // var _ww = (_xx + _w);
 					// // var _hh = (_yy + _h);
@@ -156,6 +158,11 @@ class Selector {
 					_target.setAttribute('width', '${- Math.round(xoffset.x - clientX)}');
 					_target.setAttribute('height', '${- Math.round(xoffset.y - clientY)}');
 				}
+				if (_target.dataset.type == Names.GROUP_TYPE) {
+					var _svgCombo:SVGCombo = new SVGCombo(_target);
+					_svgCombo.bg.setAttribute('width', '${- Math.round(xoffset.x - clientX)}');
+					_svgCombo.bg.setAttribute('height', '${- Math.round(xoffset.y - clientY)}');
+				}
 				updateSelectionElement(_target);
 			}
 			// trace('x: ' + e.clientX + ', y: ' + e.clientY);
@@ -174,7 +181,8 @@ class Selector {
 				return;
 			}
 			// isResizer = true;
-			resizeEl.classList.add('show');
+			if (_target.dataset.type == Names.GROUP_TYPE)
+				resizeEl.classList.add('show');
 		}
 		resizeEl.onmouseout = function(e) {
 			// isResizer = false;
@@ -185,8 +193,15 @@ class Selector {
 			isResizer = true;
 			xoffset.x = Math.round(e.clientX - Std.parseFloat(_target.getAttribute('width')));
 			xoffset.y = Math.round(e.clientY - Std.parseFloat(_target.getAttribute('height')));
+
+			if (_target.dataset.type == Names.GROUP_TYPE) {
+				var _svgCombo:SVGCombo = new SVGCombo(_target);
+				xoffset.x = Math.round(e.clientX - _svgCombo.width);
+				xoffset.y = Math.round(e.clientY - _svgCombo.height);
+			}
 			trace(xoffset);
 		}
+
 		resizeEl.onmouseup = function(e) {
 			trace('resizeEl.onmouseup');
 			if (isResizer) {
@@ -231,6 +246,18 @@ class Selector {
 		// resizeEl
 		resizeEl.style.left = (rect.left + rect.width) + 'px';
 		resizeEl.style.top = (rect.top + rect.height) + 'px';
+
+		if (element.dataset.type == Names.GROUP_TYPE) {
+			if (element.dataset.id == Names.GROUP_IMAGE) {
+				// cast(_svgCombo, SVGImage).update();
+				trace('image');
+				var _svgCombo:SVGImage = new SVGImage(element);
+				_svgCombo.update();
+			} else {
+				var _svgCombo:SVGCombo = new SVGCombo(element);
+				_svgCombo.update();
+			}
+		}
 	}
 
 	function isParentAGroup(target:SVGElement):SVGElement {

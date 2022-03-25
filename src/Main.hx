@@ -1,5 +1,6 @@
 package;
 
+import shape.SVGRectangle;
 import shape.SVGButton;
 import shape.SVGImage;
 import Names.*;
@@ -38,6 +39,7 @@ class Main {
 		//
 		// var btnHeading:ButtonElement = cast document.getElementById("js-createHeading");
 		// var btnParagraph:ButtonElement = cast document.getElementById("js-createParagraph");
+		var btnRect:ButtonElement = cast document.getElementById("js-createRectangle");
 		var btnImage:ButtonElement = cast document.getElementById("js-createImage");
 		var btnButton:ButtonElement = cast document.getElementById("js-createButton");
 
@@ -86,6 +88,11 @@ class Main {
 			element.style.stroke = 'black';
 			element.style.fill = randomColor();
 			editor.addElement(element);
+		});
+
+		btnRect.addEventListener('click', function() {
+			var group = SVGRectangle.create(Config.GRID, Config.GRID);
+			editor.addElement(group);
 		});
 
 		btnImage.addEventListener('click', function() {
