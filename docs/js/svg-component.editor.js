@@ -23,6 +23,8 @@ Main.prototype = {
 		var createCircle = window.document.getElementById("createCircle");
 		var createRectangle = window.document.getElementById("createRectangle");
 		var createText = window.document.getElementById("createText");
+		var btnHeading = window.document.getElementById("js-createHeading");
+		var btnParagraph = window.document.getElementById("js-createParagraph");
 		var btnRect = window.document.getElementById("js-createRectangle");
 		var btnImage = window.document.getElementById("js-createImage");
 		var btnButton = window.document.getElementById("js-createButton");
@@ -74,6 +76,14 @@ Main.prototype = {
 		};
 		btnButton.onclick = function() {
 			var group = shape_SVGButton.create(Config.GRID,Config.GRID);
+			editor.addElement(group);
+		};
+		btnHeading.onclick = function() {
+			var group = shape_SVGHeading.create(Config.GRID,Config.GRID);
+			editor.addElement(group);
+		};
+		btnParagraph.onclick = function() {
+			var group = shape_SVGParagraph.create(Config.GRID,Config.GRID);
 			editor.addElement(group);
 		};
 		var form = window.document.createElement("form");
@@ -197,7 +207,7 @@ var shape_SVGButton = function(el) {
 };
 shape_SVGButton.create = function(x,y) {
 	var group = svg_Group.create(x,y);
-	group.dataset.type = "svgcombo";
+	group.dataset.type = "group-type-svgcombo";
 	group.dataset.id = "group-btn";
 	var rect = svg_Rect.create(0,0,100,Config.GRID * 0.5);
 	rect.dataset.bg = "group-element-bg";
@@ -212,12 +222,49 @@ shape_SVGButton.create = function(x,y) {
 shape_SVGButton.__super__ = shape_SVGCombo;
 shape_SVGButton.prototype = $extend(shape_SVGCombo.prototype,{
 });
+var shape_SVGHeading = function(el) {
+	shape_SVGCombo.call(this,el);
+};
+shape_SVGHeading.create = function(x,y) {
+	var _w = Config.GRID * 4;
+	var _h = Config.GRID * 0.5;
+	var _padX = Config.GRID * 0.25;
+	var _padY = _h * 0.5;
+	var group = svg_Group.create(x,y);
+	group.dataset.type = "group-type-svgcombo";
+	group.dataset.id = "group-heading";
+	var rect = svg_Rect.create(0,0,_w,_h);
+	rect.dataset.bg = "group-element-bg";
+	group.appendChild(rect);
+	var line = new svg_Line(_padX,_padY,_w - _padX,_padY);
+	line.set_stroke("#e5e3e2");
+	line.set_strokeWidth(_h * .6);
+	line.set_strokeLinecap("round");
+	group.appendChild(line.child());
+	var text = svg_Text.create("Heading",_w / 2,_h / 2);
+	text.dataset.centered = "group-element-centered";
+	text.setAttribute("text-anchor","middle");
+	text.setAttribute("dominant-baseline","central");
+	group.appendChild(text);
+	return group;
+};
+shape_SVGHeading.__super__ = shape_SVGCombo;
+shape_SVGHeading.prototype = $extend(shape_SVGCombo.prototype,{
+	update: function() {
+		console.log("src/shape/SVGHeading.hx:13:","SVGHeading update");
+		var text = this.get_element().querySelector("[data-centered~=\"" + "group-element-centered" + "\"]");
+		var tmp = "" + this.get_width() / 2;
+		text.setAttribute("x",tmp);
+		var tmp = "" + this.get_height() / 2;
+		text.setAttribute("y",tmp);
+	}
+});
 var shape_SVGImage = function(el) {
 	shape_SVGCombo.call(this,el);
 };
 shape_SVGImage.create = function(x,y) {
 	var group = svg_Group.create(x,y);
-	group.dataset.type = "svgcombo";
+	group.dataset.type = "group-type-svgcombo";
 	group.dataset.id = "group-image";
 	var rect = svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2);
 	rect.dataset.bg = "group-element-bg";
@@ -240,12 +287,61 @@ shape_SVGImage.prototype = $extend(shape_SVGCombo.prototype,{
 		text.setAttribute("y",tmp);
 	}
 });
+var shape_SVGParagraph = function(el) {
+	shape_SVGCombo.call(this,el);
+};
+shape_SVGParagraph.create = function(x,y) {
+	var _w = Config.GRID * 4;
+	var _h = Config.GRID * 2;
+	var _padX = Config.GRID * 0.25;
+	var _padY = _h * 0.5;
+	var group = svg_Group.create(x,y);
+	group.dataset.type = "group-type-svgcombo";
+	group.dataset.id = "group-paragraph";
+	var rect = svg_Rect.create(0,0,_w,_h);
+	rect.dataset.bg = "group-element-bg";
+	group.appendChild(rect);
+	var total = Math.floor(_w / _padX / 2);
+	var gr = new svg_Group();
+	gr.set_dataType("foo");
+	gr.element.classList.add(Style.IGNORE);
+	var _g = 1;
+	var _g1 = total;
+	while(_g < _g1) {
+		var i = _g++;
+		var __p = _padX * i;
+		var line = new svg_Line(_padX,__p,_w - _padX,__p);
+		line.set_stroke("#e5e3e2");
+		line.set_strokeWidth(8);
+		line.set_strokeLinecap("round");
+		gr.appendChild(line.get_element());
+	}
+	group.appendChild(gr.element);
+	var text = svg_Text.create("Paragraph",_w / 2,_h / 2);
+	text.dataset.centered = "group-element-centered";
+	text.setAttribute("text-anchor","middle");
+	text.setAttribute("dominant-baseline","central");
+	group.appendChild(text);
+	return group;
+};
+shape_SVGParagraph.__super__ = shape_SVGCombo;
+shape_SVGParagraph.prototype = $extend(shape_SVGCombo.prototype,{
+	update: function() {
+		console.log("src/shape/SVGParagraph.hx:13:","SVGParagraph update");
+		var text = this.get_element().querySelector("[data-centered~=\"" + "group-element-centered" + "\"]");
+		var tmp = "" + this.get_width() / 2;
+		text.setAttribute("x",tmp);
+		var tmp = "" + this.get_height() / 2;
+		text.setAttribute("y",tmp);
+		var gr = this.get_element().querySelector("[data-type~=\"foo\"]");
+	}
+});
 var shape_SVGRectangle = function(el) {
 	shape_SVGCombo.call(this,el);
 };
 shape_SVGRectangle.create = function(x,y) {
 	var group = svg_Group.create(x,y);
-	group.dataset.type = "svgcombo";
+	group.dataset.type = "group-type-svgcombo";
 	group.dataset.id = "group-rect";
 	var rect = svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2);
 	rect.dataset.bg = "group-element-bg";
@@ -276,7 +372,16 @@ svg_Circle.create = function(x,y,r) {
 	return element;
 };
 var svg_Default = function() { };
-var svg_Group = function() { };
+var svg_Group = function(x,y) {
+	if(y == null) {
+		y = 0;
+	}
+	if(x == null) {
+		x = 0;
+	}
+	this.element = window.document.createElementNS(svg_Default.NS,"g");
+	this.element.setAttribute("transform","translate(" + x + "," + y + ")");
+};
 svg_Group.create = function(x,y) {
 	if(y == null) {
 		y = 0;
@@ -284,11 +389,32 @@ svg_Group.create = function(x,y) {
 	if(x == null) {
 		x = 0;
 	}
-	var element = window.document.createElementNS(svg_Default.NS,"g");
-	element.setAttribute("transform","translate(" + x + "," + y + ")");
-	return element;
+	var gr = new svg_Group(x,y);
+	return gr.element;
 };
-var svg_Line = function() { };
+svg_Group.prototype = {
+	appendChild: function(el) {
+		this.element.appendChild(el);
+	}
+	,set_dataType: function(value) {
+		this.element.dataset.type = value;
+		return this.dataType = value;
+	}
+};
+var svg_Line = function(x1,y1,x2,y2) {
+	if(y1 == null) {
+		y1 = 0;
+	}
+	if(x1 == null) {
+		x1 = 0;
+	}
+	this.set_element(window.document.createElementNS(svg_Default.NS,"line"));
+	this.get_element().setAttribute("x1","" + x1);
+	this.get_element().setAttribute("y1","" + y1);
+	this.get_element().setAttribute("x2","" + x2);
+	this.get_element().setAttribute("y2","" + y2);
+	this.get_element().setAttribute("stroke","green");
+};
 svg_Line.create = function(x1,y1,x2,y2) {
 	if(y1 == null) {
 		y1 = 0;
@@ -315,6 +441,29 @@ svg_Line.vertical = function(x,y,length) {
 		x = 0;
 	}
 	return svg_Line.create(x,y,x,y + length);
+};
+svg_Line.prototype = {
+	child: function() {
+		return this.get_element();
+	}
+	,get_element: function() {
+		return this.element;
+	}
+	,set_element: function(value) {
+		return this.element = value;
+	}
+	,set_stroke: function(value) {
+		this.get_element().setAttribute("stroke","" + value);
+		return this.stroke = value;
+	}
+	,set_strokeLinecap: function(value) {
+		this.get_element().setAttribute("stroke-linecap","" + value);
+		return this.strokeLinecap = value;
+	}
+	,set_strokeWidth: function(value) {
+		this.get_element().setAttribute("stroke-width","" + value);
+		return this.strokeWidth = value;
+	}
 };
 var svg_Rect = function() { };
 svg_Rect.create = function(x,y,w,h) {
@@ -471,15 +620,15 @@ var tools_Selector = function(stage) {
 				_gthis.isResizer = false;
 				return;
 			}
-			console.log("src/tools/Selector.hx:114:","window.onmousemove");
-			console.log("src/tools/Selector.hx:115:",_gthis.isResizer);
+			console.log("src/tools/Selector.hx:116:","window.onmousemove");
+			console.log("src/tools/Selector.hx:117:",_gthis.isResizer);
 			var clientX = Math.round(e.clientX);
 			var clientY = Math.round(e.clientY);
 			if(_gthis._target.tagName == "rect") {
 				_gthis._target.setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
 				_gthis._target.setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
 			}
-			if(_gthis._target.dataset.type == "svgcombo") {
+			if(_gthis._target.dataset.type == "group-type-svgcombo") {
 				var _svgCombo = new shape_SVGCombo(_gthis._target);
 				_svgCombo.get_bg().setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
 				_svgCombo.get_bg().setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
@@ -499,7 +648,7 @@ tools_Selector.prototype = {
 				_gthis.resizeEl.classList.remove("show");
 				return;
 			}
-			if(_gthis._target.dataset.type == "svgcombo") {
+			if(_gthis._target.dataset.type == "group-type-svgcombo") {
 				_gthis.resizeEl.classList.add("show");
 			}
 		};
@@ -507,29 +656,29 @@ tools_Selector.prototype = {
 			_gthis.resizeEl.classList.remove("show");
 		};
 		this.resizeEl.onmousedown = function(e) {
-			console.log("src/tools/Selector.hx:194:","resizeEl.onmousedown");
+			console.log("src/tools/Selector.hx:196:","resizeEl.onmousedown");
 			_gthis.isResizer = true;
 			var tmp = e.clientX - parseFloat(_gthis._target.getAttribute("width"));
 			_gthis.xoffset.x = Math.round(tmp);
 			var tmp = e.clientY - parseFloat(_gthis._target.getAttribute("height"));
 			_gthis.xoffset.y = Math.round(tmp);
-			if(_gthis._target.dataset.type == "svgcombo") {
+			if(_gthis._target.dataset.type == "group-type-svgcombo") {
 				var _svgCombo = new shape_SVGCombo(_gthis._target);
 				var tmp = e.clientX - _svgCombo.get_width();
 				_gthis.xoffset.x = Math.round(tmp);
 				var tmp = e.clientY - _svgCombo.get_height();
 				_gthis.xoffset.y = Math.round(tmp);
 			}
-			console.log("src/tools/Selector.hx:204:",_gthis.xoffset);
+			console.log("src/tools/Selector.hx:206:",_gthis.xoffset);
 		};
 		this.resizeEl.onmouseup = function(e) {
-			console.log("src/tools/Selector.hx:208:","resizeEl.onmouseup");
+			console.log("src/tools/Selector.hx:210:","resizeEl.onmouseup");
 			if(_gthis.isResizer) {
 				var _w = parseFloat(_gthis._target.getAttribute("width"));
 				var _h = parseFloat(_gthis._target.getAttribute("height"));
 				_gthis._target.setAttribute("width","" + Math.round(_w / _gthis._off) * _gthis._off);
 				_gthis._target.setAttribute("height","" + Math.round(_h / _gthis._off) * _gthis._off);
-				if(_gthis._target.dataset.type == "svgcombo") {
+				if(_gthis._target.dataset.type == "group-type-svgcombo") {
 					var _svgCombo = new shape_SVGCombo(_gthis._target);
 					_svgCombo.get_bg().setAttribute("width","" + Math.round(_svgCombo.get_width() / _gthis._off) * _gthis._off);
 					_svgCombo.get_bg().setAttribute("height","" + Math.round(_svgCombo.get_height() / _gthis._off) * _gthis._off);
@@ -564,14 +713,22 @@ tools_Selector.prototype = {
 		this.selectionEl.style.display = "block";
 		this.resizeEl.style.left = rect.left + rect.width + "px";
 		this.resizeEl.style.top = rect.top + rect.height + "px";
-		if(element.dataset.type == "svgcombo") {
+		if(element.dataset.type == "group-type-svgcombo") {
 			switch(element.dataset.id) {
 			case "group-btn":
 				var _svgCombo = new shape_SVGButton(element);
 				_svgCombo.update();
 				break;
+			case "group-heading":
+				var _svgCombo = new shape_SVGHeading(element);
+				_svgCombo.update();
+				break;
 			case "group-image":
 				var _svgCombo = new shape_SVGImage(element);
+				_svgCombo.update();
+				break;
+			case "group-paragraph":
+				var _svgCombo = new shape_SVGParagraph(element);
 				_svgCombo.update();
 				break;
 			case "group-rect":

@@ -1,5 +1,7 @@
 package tools;
 
+import shape.SVGParagraph;
+import shape.SVGHeading;
 import shape.SVGRectangle;
 import shape.SVGButton;
 import shape.SVGCombo;
@@ -257,17 +259,23 @@ class Selector {
 		if (element.dataset.type == Names.GROUP_TYPE) {
 			switch (element.dataset.id) {
 				case Names.GROUP_IMAGE:
-					var _svgCombo:SVGImage = new SVGImage(element);
+					var _svgCombo = new SVGImage(element);
 					_svgCombo.update();
 				case Names.GROUP_BTN:
-					var _svgCombo:SVGButton = new SVGButton(element);
+					var _svgCombo = new SVGButton(element);
 					_svgCombo.update();
 				case Names.GROUP_RECT:
-					var _svgCombo:SVGRectangle = new SVGRectangle(element);
+					var _svgCombo = new SVGRectangle(element);
+					_svgCombo.update();
+				case Names.GROUP_HEADING:
+					var _svgCombo = new SVGHeading(element);
+					_svgCombo.update();
+				case Names.GROUP_PARAGRAPH:
+					var _svgCombo = new SVGParagraph(element);
 					_svgCombo.update();
 				default:
 					// trace("case '" + element.dataset.id + "': trace ('" + element.dataset.id + "');");
-					var _svgCombo:SVGCombo = new SVGCombo(element);
+					var _svgCombo = new SVGCombo(element);
 					_svgCombo.update();
 			}
 

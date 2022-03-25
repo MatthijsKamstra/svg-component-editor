@@ -1,9 +1,11 @@
 package;
 
+import shape.SVGHeading;
 import utils.ColorUtil;
 import shape.SVGRectangle;
 import shape.SVGButton;
 import shape.SVGImage;
+import shape.SVGParagraph;
 import Names.*;
 import js.Browser.*;
 import js.html.*;
@@ -38,8 +40,8 @@ class Main {
 		var createRectangle:ButtonElement = cast document.getElementById('createRectangle');
 		var createText:ButtonElement = cast document.getElementById('createText');
 		//
-		// var btnHeading:ButtonElement = cast document.getElementById("js-createHeading");
-		// var btnParagraph:ButtonElement = cast document.getElementById("js-createParagraph");
+		var btnHeading:ButtonElement = cast document.getElementById("js-createHeading");
+		var btnParagraph:ButtonElement = cast document.getElementById("js-createParagraph");
 		var btnRect:ButtonElement = cast document.getElementById("js-createRectangle");
 		var btnImage:ButtonElement = cast document.getElementById("js-createImage");
 		var btnButton:ButtonElement = cast document.getElementById("js-createButton");
@@ -114,6 +116,15 @@ class Main {
 
 		btnButton.onclick = function() {
 			var group = SVGButton.create(Config.GRID, Config.GRID);
+			editor.addElement(group);
+		};
+
+		btnHeading.onclick = function() {
+			var group = SVGHeading.create(Config.GRID, Config.GRID);
+			editor.addElement(group);
+		};
+		btnParagraph.onclick = function() {
+			var group = SVGParagraph.create(Config.GRID, Config.GRID);
 			editor.addElement(group);
 		};
 
