@@ -110,11 +110,11 @@ class ConvertSvg2Html {
 		var str = '';
 		switch (obj.id) {
 			case Names.GROUP_HEADING:
-				str = '<h1>Heading1</h1>';
+				str = '<h2>Heading2</h2>';
 			case Names.GROUP_PARAGRAPH:
-				str = '<p>Paragraph</p>';
+				str = '<p>${lorum}</p>';
 			case Names.GROUP_RECT:
-				str = '<div style="display: flex; justify-content: center; align-items: center; background-color: ${ColorUtil.randomColor()}; width: ${obj.width}px;height: ${obj.height}px;">Rectangle</div>';
+				str = '<div style="display:flex;justify-content:center;align-items:center;background-color:${ColorUtil.randomColor()};width:${obj.width}px;min-height:${obj.height}px;height:100%;">Rectangle</div>';
 			case Names.GROUP_IMAGE:
 				str = '<img src="https://picsum.photos/${obj.width}/${obj.height}" alt="" title=""class="img-fluid" />';
 			default:
@@ -122,6 +122,8 @@ class ConvertSvg2Html {
 		}
 		return str;
 	}
+
+	var lorum = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
 }
 
 typedef SVGObject = {

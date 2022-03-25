@@ -167,6 +167,7 @@ StringTools.replace = function(s,sub,by) {
 };
 var Style = function() { };
 var convert_ConvertSvg2Html = function(stage) {
+	this.lorum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 	var html = "\n";
 	html += "<section class=\"container\">\n";
 	var array = [];
@@ -258,19 +259,19 @@ convert_ConvertSvg2Html.prototype = {
 		var str = "";
 		switch(obj.id) {
 		case "group-heading":
-			str = "<h1>Heading1</h1>";
+			str = "<h2>Heading2</h2>";
 			break;
 		case "group-image":
 			str = "<img src=\"https://picsum.photos/" + obj.width + "/" + obj.height + "\" alt=\"\" title=\"\"class=\"img-fluid\" />";
 			break;
 		case "group-paragraph":
-			str = "<p>Paragraph</p>";
+			str = "<p>" + this.lorum + "</p>";
 			break;
 		case "group-rect":
-			str = "<div style=\"display: flex; justify-content: center; align-items: center; background-color: " + utils_ColorUtil.randomColor() + "; width: " + obj.width + "px;height: " + obj.height + "px;\">Rectangle</div>";
+			str = "<div style=\"display:flex;justify-content:center;align-items:center;background-color:" + utils_ColorUtil.randomColor() + ";width:" + obj.width + "px;min-height:" + obj.height + "px;height:100%;\">Rectangle</div>";
 			break;
 		default:
-			console.log("src/convert/ConvertSvg2Html.hx:129:","case '" + obj.id + "': trace ('" + obj.id + "');");
+			console.log("src/convert/ConvertSvg2Html.hx:121:","case '" + obj.id + "': trace ('" + obj.id + "');");
 		}
 		return str;
 	}
