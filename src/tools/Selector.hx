@@ -1,5 +1,7 @@
 package tools;
 
+import shape.SVGRectangle;
+import shape.SVGButton;
 import shape.SVGCombo;
 import shape.SVGImage;
 import js.html.svg.SVGElement;
@@ -209,6 +211,11 @@ class Selector {
 				var _h = Std.parseFloat(_target.getAttribute('height'));
 				_target.setAttribute('width', '${Math.round(_w / _off) * _off}');
 				_target.setAttribute('height', '${Math.round(_h / _off) * _off}');
+				if (_target.dataset.type == Names.GROUP_TYPE) {
+					var _svgCombo:SVGCombo = new SVGCombo(_target);
+					_svgCombo.bg.setAttribute('width', '${Math.round(_svgCombo.width / _off) * _off}');
+					_svgCombo.bg.setAttribute('height', '${Math.round(_svgCombo.height / _off) * _off}');
+				}
 				updateSelectionElement(_target);
 			}
 			isResizer = false;
@@ -248,15 +255,23 @@ class Selector {
 		resizeEl.style.top = (rect.top + rect.height) + 'px';
 
 		if (element.dataset.type == Names.GROUP_TYPE) {
-			if (element.dataset.id == Names.GROUP_IMAGE) {
-				// cast(_svgCombo, SVGImage).update();
-				trace('image');
-				var _svgCombo:SVGImage = new SVGImage(element);
-				_svgCombo.update();
-			} else {
-				var _svgCombo:SVGCombo = new SVGCombo(element);
-				_svgCombo.update();
+			switch (element.dataset.id) {
+				case Names.GROUP_IMAGE:
+					var _svgCombo:SVGImage = new SVGImage(element);
+					_svgCombo.update();
+				case Names.GROUP_BTN:
+					var _svgCombo:SVGButton = new SVGButton(element);
+					_svgCombo.update();
+				case Names.GROUP_RECT:
+					var _svgCombo:SVGRectangle = new SVGRectangle(element);
+					_svgCombo.update();
+				default:
+					// trace("case '" + element.dataset.id + "': trace ('" + element.dataset.id + "');");
+					var _svgCombo:SVGCombo = new SVGCombo(element);
+					_svgCombo.update();
 			}
+
+			if (element.dataset.id == Names.GROUP_IMAGE) {} else {}
 		}
 	}
 

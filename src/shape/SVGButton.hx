@@ -1,12 +1,14 @@
 package shape;
 
-import js.html.svg.SVGElement;
 import svg.Group;
 import Names.*;
 
 class SVGButton extends SVGCombo {
 	public function new(el) {
 		super(el);
+		var text = cast element.querySelector('[data-centered~="${Names.GROUP_EL_CENTERED}"]');
+		text.setAttribute('x', '${width / 2}');
+		text.setAttribute('y', '${height / 2}');
 	}
 
 	public static function create(x, y) {
@@ -16,11 +18,12 @@ class SVGButton extends SVGCombo {
 
 		// rectangle
 		var rect = svg.Rect.create(0, 0, 100, Config.GRID * 0.5);
-		rect.dataset.bg = Names.GROUP_BG;
+		rect.dataset.bg = Names.GROUP_EL_BG;
 		group.appendChild(rect);
 
 		// text
 		var text = svg.Text.create('Submit', 100 * 0.5, Config.GRID * 0.25);
+		text.dataset.centered = Names.GROUP_EL_CENTERED;
 		text.setAttribute('text-anchor', "middle");
 		text.setAttribute('dominant-baseline', "central");
 		group.appendChild(text);

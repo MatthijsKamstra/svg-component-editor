@@ -45,28 +45,14 @@ Main.prototype = {
 			element.setAttribute("cy",_gthis.parseNumber(Math.random() * _gthis.HEIGHT));
 			element.setAttribute("r",_gthis.parseNumber(Math.random() * 100));
 			element.style.stroke = "black";
-			element.style.fill = _gthis.randomColor();
+			element.style.fill = utils_ColorUtil.randomColor();
 			editor.addElement(element);
 		});
 		createRectangle.addEventListener("click",function() {
 			var element = svg_Rect.create(Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4),Config.GRID * utils_MathUtil.getRandomInt(1,4));
 			element.style.stroke = "black";
-			element.style.fill = _gthis.randomColor();
+			element.style.fill = utils_ColorUtil.randomColor();
 			editor.addElement(element);
-		});
-		btnRect.addEventListener("click",function() {
-			var group = shape_SVGRectangle.create(Config.GRID,Config.GRID);
-			editor.addElement(group);
-		});
-		btnImage.addEventListener("click",function() {
-			console.log("src/Main.hx:99:","btnImage");
-			var group = shape_SVGImage.create(Config.GRID,Config.GRID);
-			editor.addElement(group);
-		});
-		btnButton.addEventListener("click",function() {
-			console.log("src/Main.hx:105:","btnButton");
-			var group = shape_SVGButton.create(Config.GRID,Config.GRID);
-			editor.addElement(group);
 		});
 		createText.addEventListener("click",function() {
 			var element = window.document.createElementNS(svg_Default.NS,"text");
@@ -74,10 +60,22 @@ Main.prototype = {
 			element.setAttribute("y",_gthis.parseNumber(Math.random() * _gthis.HEIGHT));
 			element.setAttribute("font-size","30px");
 			element.style.stroke = "black";
-			element.style.fill = _gthis.randomColor();
+			element.style.fill = utils_ColorUtil.randomColor();
 			element.textContent = "Hello World";
 			editor.addElement(element);
 		});
+		btnRect.onclick = function() {
+			var group = shape_SVGRectangle.create(Config.GRID,Config.GRID);
+			editor.addElement(group);
+		};
+		btnImage.onclick = function() {
+			var group = shape_SVGImage.create(Config.GRID,Config.GRID);
+			editor.addElement(group);
+		};
+		btnButton.onclick = function() {
+			var group = shape_SVGButton.create(Config.GRID,Config.GRID);
+			editor.addElement(group);
+		};
 		var form = window.document.createElement("form");
 		form.style.display = "none";
 		window.document.body.appendChild(form);
@@ -113,7 +111,7 @@ Main.prototype = {
 	}
 	,setupGrid: function(stage) {
 		var group = svg_Group.create(0,0);
-		group.id = Names.GROUP_GRID;
+		group.id = "group-grid";
 		group.classList.add(Style.IGNORE);
 		var gridW = this.WIDTH / 12;
 		var _g = 0;
@@ -135,11 +133,7 @@ Main.prototype = {
 	,parseNumber: function(value) {
 		return parseFloat(value.toFixed(2));
 	}
-	,randomColor: function() {
-		return "#" + Math.floor(Math.random() * 16777215).toString(16);
-	}
 };
-var Names = function() { };
 var StringTools = function() { };
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
@@ -162,7 +156,7 @@ var shape_SVGCombo = function(el) {
 	this.set_element(el);
 	this.set_width(rect.width);
 	this.set_height(rect.height);
-	this.set_bg(el.querySelector("[data-bg~=\"" + Names.GROUP_BG + "\"]"));
+	this.set_bg(el.querySelector("[data-bg~=\"" + "group-element-bg" + "\"]"));
 };
 shape_SVGCombo.prototype = {
 	update: function() {
@@ -195,15 +189,21 @@ shape_SVGCombo.prototype = {
 };
 var shape_SVGButton = function(el) {
 	shape_SVGCombo.call(this,el);
+	var text = this.get_element().querySelector("[data-centered~=\"" + "group-element-centered" + "\"]");
+	var tmp = "" + this.get_width() / 2;
+	text.setAttribute("x",tmp);
+	var tmp = "" + this.get_height() / 2;
+	text.setAttribute("y",tmp);
 };
 shape_SVGButton.create = function(x,y) {
 	var group = svg_Group.create(x,y);
-	group.dataset.type = Names.GROUP_TYPE;
-	group.dataset.id = Names.GROUP_BTN;
+	group.dataset.type = "svgcombo";
+	group.dataset.id = "group-btn";
 	var rect = svg_Rect.create(0,0,100,Config.GRID * 0.5);
-	rect.dataset.bg = Names.GROUP_BG;
+	rect.dataset.bg = "group-element-bg";
 	group.appendChild(rect);
 	var text = svg_Text.create("Submit",50.,Config.GRID * 0.25);
+	text.dataset.centered = "group-element-centered";
 	text.setAttribute("text-anchor","middle");
 	text.setAttribute("dominant-baseline","central");
 	group.appendChild(text);
@@ -217,13 +217,13 @@ var shape_SVGImage = function(el) {
 };
 shape_SVGImage.create = function(x,y) {
 	var group = svg_Group.create(x,y);
-	group.dataset.type = Names.GROUP_TYPE;
-	group.dataset.id = Names.GROUP_IMAGE;
+	group.dataset.type = "svgcombo";
+	group.dataset.id = "group-image";
 	var rect = svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2);
-	rect.dataset.bg = Names.GROUP_BG;
+	rect.dataset.bg = "group-element-bg";
 	group.appendChild(rect);
 	var text = svg_Text.create("Image",Config.GRID,Config.GRID);
-	text.dataset.centered = Names.GROUP_CENTERED;
+	text.dataset.centered = "group-element-centered";
 	text.setAttribute("text-anchor","middle");
 	text.setAttribute("dominant-baseline","central");
 	group.appendChild(text);
@@ -232,10 +232,12 @@ shape_SVGImage.create = function(x,y) {
 shape_SVGImage.__super__ = shape_SVGCombo;
 shape_SVGImage.prototype = $extend(shape_SVGCombo.prototype,{
 	update: function() {
-		console.log("src/shape/SVGImage.hx:14:","SVGImage update");
-		var text = this.get_element().querySelector("[data-centered~=\"" + Names.GROUP_CENTERED + "\"]");
-		text.setAttribute("x","" + this.get_width() / 2);
-		text.setAttribute("y","" + this.get_height() / 2);
+		console.log("src/shape/SVGImage.hx:12:","SVGImage update");
+		var text = this.get_element().querySelector("[data-centered~=\"" + "group-element-centered" + "\"]");
+		var tmp = "" + this.get_width() / 2;
+		text.setAttribute("x",tmp);
+		var tmp = "" + this.get_height() / 2;
+		text.setAttribute("y",tmp);
 	}
 });
 var shape_SVGRectangle = function(el) {
@@ -243,10 +245,10 @@ var shape_SVGRectangle = function(el) {
 };
 shape_SVGRectangle.create = function(x,y) {
 	var group = svg_Group.create(x,y);
-	group.dataset.type = Names.GROUP_TYPE;
-	group.dataset.id = Names.GROUP_RECT;
+	group.dataset.type = "svgcombo";
+	group.dataset.id = "group-rect";
 	var rect = svg_Rect.create(0,0,Config.GRID * 2,Config.GRID * 2);
-	rect.dataset.bg = Names.GROUP_BG;
+	rect.dataset.bg = "group-element-bg";
 	rect.style.fill = utils_ColorUtil.randomColor();
 	group.appendChild(rect);
 	return group;
@@ -469,15 +471,15 @@ var tools_Selector = function(stage) {
 				_gthis.isResizer = false;
 				return;
 			}
-			console.log("src/tools/Selector.hx:112:","window.onmousemove");
-			console.log("src/tools/Selector.hx:113:",_gthis.isResizer);
+			console.log("src/tools/Selector.hx:114:","window.onmousemove");
+			console.log("src/tools/Selector.hx:115:",_gthis.isResizer);
 			var clientX = Math.round(e.clientX);
 			var clientY = Math.round(e.clientY);
 			if(_gthis._target.tagName == "rect") {
 				_gthis._target.setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
 				_gthis._target.setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
 			}
-			if(_gthis._target.dataset.type == Names.GROUP_TYPE) {
+			if(_gthis._target.dataset.type == "svgcombo") {
 				var _svgCombo = new shape_SVGCombo(_gthis._target);
 				_svgCombo.get_bg().setAttribute("width","" + -Math.round(_gthis.xoffset.x - clientX));
 				_svgCombo.get_bg().setAttribute("height","" + -Math.round(_gthis.xoffset.y - clientY));
@@ -497,7 +499,7 @@ tools_Selector.prototype = {
 				_gthis.resizeEl.classList.remove("show");
 				return;
 			}
-			if(_gthis._target.dataset.type == Names.GROUP_TYPE) {
+			if(_gthis._target.dataset.type == "svgcombo") {
 				_gthis.resizeEl.classList.add("show");
 			}
 		};
@@ -505,28 +507,33 @@ tools_Selector.prototype = {
 			_gthis.resizeEl.classList.remove("show");
 		};
 		this.resizeEl.onmousedown = function(e) {
-			console.log("src/tools/Selector.hx:192:","resizeEl.onmousedown");
+			console.log("src/tools/Selector.hx:194:","resizeEl.onmousedown");
 			_gthis.isResizer = true;
 			var tmp = e.clientX - parseFloat(_gthis._target.getAttribute("width"));
 			_gthis.xoffset.x = Math.round(tmp);
 			var tmp = e.clientY - parseFloat(_gthis._target.getAttribute("height"));
 			_gthis.xoffset.y = Math.round(tmp);
-			if(_gthis._target.dataset.type == Names.GROUP_TYPE) {
+			if(_gthis._target.dataset.type == "svgcombo") {
 				var _svgCombo = new shape_SVGCombo(_gthis._target);
 				var tmp = e.clientX - _svgCombo.get_width();
 				_gthis.xoffset.x = Math.round(tmp);
 				var tmp = e.clientY - _svgCombo.get_height();
 				_gthis.xoffset.y = Math.round(tmp);
 			}
-			console.log("src/tools/Selector.hx:202:",_gthis.xoffset);
+			console.log("src/tools/Selector.hx:204:",_gthis.xoffset);
 		};
 		this.resizeEl.onmouseup = function(e) {
-			console.log("src/tools/Selector.hx:206:","resizeEl.onmouseup");
+			console.log("src/tools/Selector.hx:208:","resizeEl.onmouseup");
 			if(_gthis.isResizer) {
 				var _w = parseFloat(_gthis._target.getAttribute("width"));
 				var _h = parseFloat(_gthis._target.getAttribute("height"));
 				_gthis._target.setAttribute("width","" + Math.round(_w / _gthis._off) * _gthis._off);
 				_gthis._target.setAttribute("height","" + Math.round(_h / _gthis._off) * _gthis._off);
+				if(_gthis._target.dataset.type == "svgcombo") {
+					var _svgCombo = new shape_SVGCombo(_gthis._target);
+					_svgCombo.get_bg().setAttribute("width","" + Math.round(_svgCombo.get_width() / _gthis._off) * _gthis._off);
+					_svgCombo.get_bg().setAttribute("height","" + Math.round(_svgCombo.get_height() / _gthis._off) * _gthis._off);
+				}
 				_gthis.updateSelectionElement(_gthis._target);
 			}
 			_gthis.isResizer = false;
@@ -557,15 +564,25 @@ tools_Selector.prototype = {
 		this.selectionEl.style.display = "block";
 		this.resizeEl.style.left = rect.left + rect.width + "px";
 		this.resizeEl.style.top = rect.top + rect.height + "px";
-		if(element.dataset.type == Names.GROUP_TYPE) {
-			if(element.dataset.id == Names.GROUP_IMAGE) {
-				console.log("src/tools/Selector.hx:253:","image");
+		if(element.dataset.type == "svgcombo") {
+			switch(element.dataset.id) {
+			case "group-btn":
+				var _svgCombo = new shape_SVGButton(element);
+				_svgCombo.update();
+				break;
+			case "group-image":
 				var _svgCombo = new shape_SVGImage(element);
 				_svgCombo.update();
-			} else {
+				break;
+			case "group-rect":
+				var _svgCombo = new shape_SVGRectangle(element);
+				_svgCombo.update();
+				break;
+			default:
 				var _svgCombo = new shape_SVGCombo(element);
 				_svgCombo.update();
 			}
+			var tmp = element.dataset.id == "group-image";
 		}
 	}
 	,isParentAGroup: function(target) {
@@ -603,13 +620,6 @@ utils_MathUtil.getRandomInt = function(min,max) {
 Config.WIDTH = 600;
 Config.HEIGHT = 400;
 Config.GRID = Config.WIDTH / 12;
-Names.GROUP_BTN = "group-btn";
-Names.GROUP_IMAGE = "group-image";
-Names.GROUP_RECT = "group-rect";
-Names.GROUP_GRID = "group-grid";
-Names.GROUP_BG = "group-element-bg";
-Names.GROUP_CENTERED = "group-element-centered";
-Names.GROUP_TYPE = "svgcombo";
 Style.IGNORE = "ignore";
 svg_Default.NS = "http://www.w3.org/2000/svg";
 Main.main();

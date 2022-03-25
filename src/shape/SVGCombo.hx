@@ -18,7 +18,7 @@ class SVGCombo {
 
 		// trace(el.querySelector('[data-bg~="${Names.GROUP_BG}"]'));
 		// assumption is that there is always a bg
-		bg = cast el.querySelector('[data-bg~="${Names.GROUP_BG}"]');
+		bg = cast el.querySelector('[data-bg~="${Names.GROUP_EL_BG}"]');
 	}
 
 	public function update() {

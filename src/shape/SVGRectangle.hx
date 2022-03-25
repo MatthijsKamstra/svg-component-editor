@@ -23,7 +23,7 @@ class SVGRectangle extends SVGCombo {
 
 		// rectangle
 		var rect = svg.Rect.create(0, 0, Config.GRID * 2, Config.GRID * 2);
-		rect.dataset.bg = Names.GROUP_BG;
+		rect.dataset.bg = Names.GROUP_EL_BG;
 		rect.style.fill = ColorUtil.randomColor();
 		group.appendChild(rect);
 

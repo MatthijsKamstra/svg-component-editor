@@ -1,5 +1,6 @@
 package;
 
+import utils.ColorUtil;
 import shape.SVGRectangle;
 import shape.SVGButton;
 import shape.SVGImage;
@@ -71,7 +72,7 @@ class Main {
 			element.setAttribute('cy', parseNumber(untyped Math.random() * HEIGHT));
 			element.setAttribute('r', parseNumber(untyped Math.random() * 100));
 			element.style.stroke = 'black';
-			element.style.fill = randomColor();
+			element.style.fill = ColorUtil.randomColor();
 			editor.addElement(element);
 		});
 
@@ -86,25 +87,8 @@ class Main {
 			var element = svg.Rect.create(Config.GRID * MathUtil.getRandomInt(1, 4), Config.GRID * MathUtil.getRandomInt(1, 4),
 				Config.GRID * MathUtil.getRandomInt(1, 4), Config.GRID * MathUtil.getRandomInt(1, 4));
 			element.style.stroke = 'black';
-			element.style.fill = randomColor();
+			element.style.fill = ColorUtil.randomColor();
 			editor.addElement(element);
-		});
-
-		btnRect.addEventListener('click', function() {
-			var group = SVGRectangle.create(Config.GRID, Config.GRID);
-			editor.addElement(group);
-		});
-
-		btnImage.addEventListener('click', function() {
-			trace("btnImage");
-			var group = SVGImage.create(Config.GRID, Config.GRID);
-			editor.addElement(group);
-		});
-
-		btnButton.addEventListener('click', function() {
-			trace("btnButton");
-			var group = SVGButton.create(Config.GRID, Config.GRID);
-			editor.addElement(group);
 		});
 
 		createText.addEventListener('click', function() {
@@ -113,10 +97,25 @@ class Main {
 			element.setAttribute('y', parseNumber(untyped Math.random() * HEIGHT));
 			element.setAttribute('font-size', '30px');
 			element.style.stroke = 'black';
-			element.style.fill = randomColor();
+			element.style.fill = ColorUtil.randomColor();
 			element.textContent = 'Hello World';
 			editor.addElement(element);
 		});
+
+		btnRect.onclick = function() {
+			var group = SVGRectangle.create(Config.GRID, Config.GRID);
+			editor.addElement(group);
+		};
+
+		btnImage.onclick = function() {
+			var group = SVGImage.create(Config.GRID, Config.GRID);
+			editor.addElement(group);
+		};
+
+		btnButton.onclick = function() {
+			var group = SVGButton.create(Config.GRID, Config.GRID);
+			editor.addElement(group);
+		};
 
 		// LOAD
 		var form:FormElement = cast document.createElement('form');
@@ -181,10 +180,6 @@ class Main {
 
 	function parseNumber(value) {
 		return untyped parseFloat(value.toFixed(2));
-	}
-
-	function randomColor() {
-		return untyped '#' + Math.floor(untyped Math.random() * 16777215).toString(16);
 	}
 
 	static public function main() {
